@@ -15,6 +15,7 @@ import me.s3for.interfaces.S3UtilsInterface;
 
 import org.apache.http.Header;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
@@ -35,6 +36,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	final static String server = PropertiesUtils.getProperty("AWSserver");
 
 	AmazonS3 s3client;
+	Bucket bucket;
 
 	public S3Utils(String key, String secret, String server) {
 		s3client = new AmazonS3Client(new BasicAWSCredentials(key, secret));
@@ -64,6 +66,10 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		return bucketList;
 	}
 
+	public void setBacket(String bucketName) {
+		this.bucket = getBucket(bucketName);
+	}
+
 	public Bucket getBucket(String bucketName) {
 		List<Bucket> bucketList = getBucketList();
 
@@ -74,6 +80,15 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		}
 
 		return null;
+	}
+
+	public void put(String objectName) {
+		try {
+			s3client.putObject(new PutObjectRequest(bucket.getName(),
+					objectName, createSampleFile()));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void test() {

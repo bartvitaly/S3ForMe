@@ -62,13 +62,21 @@ public class S3Test extends TestInitialize {
 
 	@Test(groups = { "test" })
 	public void bucketWriteTest() throws IOException {
+
+		// initiate S3 objects
 		S3Utils s3Utils = new S3Utils(keyS3, secretS3, serverS3);
 		S3Utils s3UtilsAws = new S3Utils();
 
-		List<Bucket> bucketList = s3Utils.getBucketList();
-		List<Bucket> bucketListAws = s3UtilsAws.getBucketList();
+		// set bucket to work with
+		s3Utils.setBacket(bucketName);
+		s3UtilsAws.setBacket(bucketName);
 
-		Assert.assertTrue(Common.compareLists(bucketList, bucketListAws));
+		// put a file in a basket
+		s3Utils.put("file.txt");
+		s3UtilsAws.put("file.txt");
+
+		// Final assertion
+
 	}
 
 }
