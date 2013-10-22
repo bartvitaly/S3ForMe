@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
 
+import org.apache.http.Header;
 import org.apache.log4j.Logger;
 
 import com.amazonaws.services.s3.model.Bucket;
@@ -89,4 +90,20 @@ public class Common {
 		return true;
 
 	}
+	
+	public static boolean compareHeaders(Header[] aHeader, Header[] bHeader) {
+
+		int sizeOfTheShortestList = Math.min(aHeader.length, bHeader.length);
+
+		for (int i = 0; i < sizeOfTheShortestList; i++) {
+			if (!((Bucket) bHeader.get(i)).getName().equals(
+					((Bucket) aList.get(i)).getName())) {
+				return false;
+			}
+		}
+
+		return true;
+
+	}
+	
 }
