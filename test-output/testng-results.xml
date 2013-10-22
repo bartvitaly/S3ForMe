@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="1" passed="1">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="651" started-at="2013-10-21T13:37:22Z" finished-at="2013-10-21T13:37:23Z">
+    <groups>
+      <group name="test">
+        <method signature="S3Test.bucketTest()[pri:0, instance:test.java.S3Test@69960a51]" name="bucketTest" class="test.java.S3Test"/>
+      </group> <!-- test -->
+    </groups>
+    <test name="Default test" duration-ms="651" started-at="2013-10-21T13:37:22Z" finished-at="2013-10-21T13:37:23Z">
+      <class name="test.java.S3Test">
+        <test-method status="PASS" signature="initLogger()[pri:0, instance:test.java.S3Test@69960a51]" name="initLogger" is-config="true" duration-ms="18" started-at="2013-10-21T16:37:22Z" finished-at="2013-10-21T16:37:22Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- initLogger -->
+        <test-method status="PASS" signature="before()[pri:0, instance:test.java.S3Test@69960a51]" name="before" is-config="true" duration-ms="0" started-at="2013-10-21T16:37:22Z" finished-at="2013-10-21T16:37:22Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- before -->
+        <test-method status="PASS" signature="bucketTest()[pri:0, instance:test.java.S3Test@69960a51]" name="bucketTest" duration-ms="641" started-at="2013-10-21T16:37:22Z" finished-at="2013-10-21T16:37:23Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- bucketTest -->
+      </class> <!-- test.java.S3Test -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
