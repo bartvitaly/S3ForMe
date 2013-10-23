@@ -6,7 +6,7 @@ import java.util.List;
 import me.s3for.common.Common;
 import me.s3for.common.PropertiesUtils;
 import me.s3for.common.S3Utils;
-//import me.s3for.common.StringUtils;
+import me.s3for.common.StringUtils;
 
 import org.apache.http.Header;
 import org.testng.Assert;
@@ -83,17 +83,27 @@ public class S3Test extends TestInitialize {
 		S3Object s3ObjectAws = s3UtilsAws.get("file.txt");
 
 		// Get file content
-//		String content = StringUtils.inputStreamToString(s3Object
-//				.getObjectContent());
-//		String contentAws = StringUtils.inputStreamToString(s3ObjectAws
-//				.getObjectContent());
+		String content = StringUtils.inputStreamToString(s3Object
+				.getObjectContent());
+		String contentAws = StringUtils.inputStreamToString(s3ObjectAws
+				.getObjectContent());
 
 		// Get S3 objects headers
 		Header[] header = s3Utils.getHttpRequestHeader(s3Object);
 		Header[] headerAws = s3UtilsAws.getHttpRequestHeader(s3ObjectAws);
 
+		System.out.println("Headers");
+		for (int i = 0; i < header.length; i++) {
+			System.out.println(header[i]);
+		}
+
+		System.out.println("HeadersAWS");
+		for (int i = 0; i < headerAws.length; i++) {
+			System.out.println(headerAws[i]);
+		}
+
 		// Final assertion
-//		Assert.assertEquals(content, contentAws);
+		Assert.assertEquals(content, contentAws);
 
 	}
 }

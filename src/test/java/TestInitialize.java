@@ -8,7 +8,7 @@ public class TestInitialize {
 
 	public static Logger logger = Logger.getLogger(TestInitialize.class);
 
-	@BeforeSuite(groups = { "test", "bucketWrite" })
+	@BeforeSuite(groups = { "test", "bucketWrite", "cors" })
 	public void initLogger() {
 		BasicConfigurator.configure();
 		// DOMConfigurator.configure("log4j.xml");

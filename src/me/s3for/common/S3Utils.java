@@ -17,7 +17,6 @@ import org.apache.http.Header;
 
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.GetObjectRequest;
@@ -34,7 +33,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 			.getProperty("AWSSecretAccessKeyID");
 	final static String server = PropertiesUtils.getProperty("AWSserver");
 
-	AmazonS3 s3client;
+	public AmazonS3Client s3client;
 	Bucket bucket;
 
 	// Constructors
