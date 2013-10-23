@@ -33,7 +33,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 			.getProperty("AWSSecretAccessKeyID");
 	final static String server = PropertiesUtils.getProperty("AWSserver");
 
-	public AmazonS3Client s3client;
+	private AmazonS3Client s3client;
 	Bucket bucket;
 
 	// Constructors
@@ -45,6 +45,10 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	public S3Utils() {
 		s3client = new AmazonS3Client(new BasicAWSCredentials(key, secret));
 		s3client.setEndpoint(server);
+	}
+
+	public AmazonS3Client getClient() {
+		return s3client;
 	}
 
 	public Map<String, Object> getMetaData(S3Object s3object) {
