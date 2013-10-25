@@ -23,6 +23,8 @@ public class CorsTest extends TestInitialize {
 			.getProperty("S3SecretAccessKeyID");
 	final static String serverS3 = PropertiesUtils.getProperty("S3server");
 
+	final static String home = PropertiesUtils.getProperty("home");
+
 	AmazonS3Client s3client;
 	public static String bucketName = PropertiesUtils.getProperty("bucket");
 

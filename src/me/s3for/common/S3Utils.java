@@ -33,7 +33,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 			.getProperty("AWSSecretAccessKeyID");
 	final static String server = PropertiesUtils.getProperty("AWSserver");
 
-	private AmazonS3Client s3client;
+	AmazonS3Client s3client;
 	Bucket bucket;
 
 	// Constructors
@@ -48,6 +48,11 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	}
 
 	public AmazonS3Client getClient() {
+
+		if (s3client == null) {
+			new S3Utils();
+		}
+
 		return s3client;
 	}
 
@@ -72,7 +77,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	}
 
 	public void setBacket(String bucketName) {
-		this.bucket = getBucket(bucketName);
+		bucket = getBucket(bucketName);
 	}
 
 	public Bucket getBucket(String bucketName) {
@@ -85,6 +90,15 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		}
 
 		return null;
+	}
+
+	public void putTextFile(String objectName, String text, String backetName) {
+		try {
+			s3client.putObject(new PutObjectRequest(backetName, objectName,
+					FileUtils.create(objectName, text)));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void put(String objectName) {

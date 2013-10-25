@@ -3,12 +3,14 @@
 <suite name="Failed suite [Default suite]">
   <test name="Default test(failed)">
     <classes>
-      <class name="test.java.CorsTest">
+      <class name="test.java.CorsWebDriverTest_New">
         <methods>
-          <include name="test"/>
+          <include name="tear"/>
+          <include name="allowedOrigin"/>
+          <include name="createDriver"/>
           <include name="initLogger"/>
         </methods>
-      </class> <!-- test.java.CorsTest -->
+      </class> <!-- test.java.CorsWebDriverTest_New -->
     </classes>
   </test> <!-- Default test(failed) -->
 </suite> <!-- Failed suite [Default suite] -->

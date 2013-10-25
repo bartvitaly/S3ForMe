@@ -18,37 +18,46 @@ import com.amazonaws.services.s3.model.Bucket;
 
 public class Common {
 
-	private final String USER_AGENT = "Mozilla/5.0";
+	private final static String USER_AGENT = "Mozilla/5.0";
 
 	public static Logger logger = Logger.getLogger(Common.class);
 
-	public void sendGet(String urlString) throws Exception {
+	public static String sendGet(String urlString) {
 
-		URL url = new URL(urlString);
-		HttpURLConnection con = (HttpURLConnection) url.openConnection();
+		String result = "";
 
-		// optional default is GET
-		con.setRequestMethod("GET");
+		StringBuffer response;
+		try {
+			URL url = new URL(urlString);
+			HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
-		// add request header
-		con.setRequestProperty("User-Agent", USER_AGENT);
+			// optional default is GET
+			con.setRequestMethod("GET");
 
-		int responseCode = con.getResponseCode();
-		System.out.println("\nSending 'GET' request to URL : " + urlString);
-		System.out.println("Response Code : " + responseCode);
+			// add request header
+			con.setRequestProperty("User-Agent", USER_AGENT);
 
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				con.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
+			int responseCode = con.getResponseCode();
+			System.out.println("\nSending 'GET' request to URL : " + urlString);
+			System.out.println("Response Code : " + responseCode);
 
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
+			BufferedReader in = new BufferedReader(new InputStreamReader(
+					con.getInputStream()));
+			String inputLine;
+			response = new StringBuffer();
+
+			while ((inputLine = in.readLine()) != null) {
+				response.append(inputLine);
+			}
+			in.close();
+
+			result = response.toString();
+
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		in.close();
 
-		// print result
-		System.out.println(response.toString());
+		return result;
 
 	}
 

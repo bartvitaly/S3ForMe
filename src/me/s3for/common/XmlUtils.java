@@ -61,6 +61,9 @@ public class XmlUtils {
 			if (node == null) {
 				createNode(xPathString, value);
 			}
+			else {
+				node.setTextContent(value);
+			}
 
 		} catch (XPathExpressionException e) {
 			e.printStackTrace();
