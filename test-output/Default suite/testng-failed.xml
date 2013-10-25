@@ -6,7 +6,7 @@
       <class name="test.java.CorsWebDriverTest_New">
         <methods>
           <include name="tear"/>
-          <include name="allowedOrigin"/>
+          <include name="allowedOriginNegative"/>
           <include name="createDriver"/>
           <include name="initLogger"/>
         </methods>

@@ -40,7 +40,7 @@ function httpRequest(type, url) {
 		xmlHttp.send(null);
 		xmlHttp.status
 	} catch (err) {
-		return err.message
+		return err.name;
 	}
 	return xmlHttp.status;
 }
