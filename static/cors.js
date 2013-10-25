@@ -32,7 +32,20 @@ function httpGet(theUrl) {
 	return xmlHttp.responseText;
 }
 
-function appendChild() {	
+function httpRequest(type, url) {
+	var xmlHttp = null;
+	try {
+		xmlHttp = new XMLHttpRequest();
+		xmlHttp.open(type, url, false);
+		xmlHttp.send(null);
+		xmlHttp.status
+	} catch (err) {
+		return err.message
+	}
+	return xmlHttp.status;
+}
+
+function appendChild() {
 	var span = document.createElement("span");
 	span.appendChild(document.createTextNode("text"));
 	document.body.appendChild(span);
