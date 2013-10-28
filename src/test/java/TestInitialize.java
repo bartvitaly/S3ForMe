@@ -28,17 +28,22 @@ public class TestInitialize extends WebDriverCommon {
 	final static String corsXmlPath = FileUtils.getRootPath() + "\\static\\"
 			+ corsXml;
 
+	static final String INDEX_FILE = PropertiesUtils.getProperty("indexHtm");;
+	final static String path = FileUtils.getRootPath() + "\\static\\"
+			+ INDEX_FILE;
+
 	final static String bucket = PropertiesUtils.getProperty("bucket");
 
 	public static Logger logger = Logger.getLogger(TestInitialize.class);
 
-	@BeforeSuite(groups = { "test", "bucketWrite", "corsWD", "corsWDNew" })
+	@BeforeSuite(groups = { "test", "bucketWrite", "corsWD", "corsWDNew",
+			"corsAPI", "corsAPI_Negative" })
 	public void initLogger() {
 		BasicConfigurator.configure();
 		// DOMConfigurator.configure("log4j.xml");
 	}
 
-	@BeforeTest(groups = { "corsWD", "corsWDNew" })
+	@BeforeTest(groups = { "corsWD", "corsWDNew", "corsAPI" })
 	public void createDriver() {
 
 		System.setProperty("webdriver.chrome.driver",

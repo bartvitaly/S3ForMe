@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -19,12 +20,15 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.Bucket;
+import com.amazonaws.services.s3.model.BucketCrossOriginConfiguration;
+import com.amazonaws.services.s3.model.CORSRule;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.CORSRule.AllowedMethods;
 
 public class S3Utils extends Common implements S3UtilsInterface {
 
@@ -35,6 +39,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	AmazonS3Client s3client;
 	Bucket bucket;
+	String bucketName;
 
 	// Constructors
 	public S3Utils(String key, String secret, String server) {
@@ -47,6 +52,15 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		s3client.setEndpoint(server);
 	}
 
+	public S3Utils(boolean authorize) {
+		if (!authorize) {
+			s3client = new AmazonS3Client();
+		} else {
+			s3client = new AmazonS3Client(new BasicAWSCredentials(key, secret));
+		}
+		s3client.setEndpoint(server);
+	}
+
 	public AmazonS3Client getClient() {
 
 		if (s3client == null) {
@@ -54,6 +68,37 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		}
 
 		return s3client;
+	}
+
+	public static String creteCorsHtml(String path, String corsJsUri,
+			String requestType, String crossOriginUrl, String nodeXpath) {
+
+		String nodeValue = "document.write(httpRequest('" + requestType
+				+ "', '" + crossOriginUrl + "'))";
+
+		HtmlUtils htmlUtils = new HtmlUtils(path);
+		htmlUtils.setNode(nodeXpath + "/script", nodeValue);
+		htmlUtils.setAttribute(nodeXpath, "requestType", requestType);
+		htmlUtils.setAttribute("//head/script", "src", corsJsUri);
+
+		String htm = htmlUtils.transform();
+
+		return htm;
+	}
+
+	public void setCrosConfiguration(String[] AllowedOrigins,
+			AllowedMethods[] allowedMethods) {
+
+		BucketCrossOriginConfiguration configuration = new BucketCrossOriginConfiguration();
+
+		CORSRule rule = new CORSRule().withId("CORSRule")
+				.withAllowedMethods(Arrays.asList(allowedMethods))
+				.withAllowedOrigins(Arrays.asList(AllowedOrigins));
+
+		configuration.setRules(Arrays.asList(new CORSRule[] { rule }));
+
+		s3client.setBucketCrossOriginConfiguration(bucketName, configuration);
+
 	}
 
 	public Map<String, Object> getMetaData(S3Object s3object) {
@@ -78,6 +123,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	public void setBacket(String bucketName) {
 		bucket = getBucket(bucketName);
+		this.bucketName = bucketName;
 	}
 
 	public Bucket getBucket(String bucketName) {
@@ -116,6 +162,21 @@ public class S3Utils extends Common implements S3UtilsInterface {
 				.getName(), objectName));
 
 		return object;
+	}
+
+	public static AllowedMethods getAllowedMethod(String requestType) {
+
+		if (requestType.equals("PUT")) {
+			return CORSRule.AllowedMethods.PUT;
+		} else if (requestType.equals("POST")) {
+			return CORSRule.AllowedMethods.POST;
+		} else if (requestType.equals("DELETE")) {
+			return CORSRule.AllowedMethods.DELETE;
+		} else if (requestType.equals("HEAD")) {
+			return CORSRule.AllowedMethods.HEAD;
+		}
+
+		return CORSRule.AllowedMethods.GET;
 	}
 
 	public void test() {

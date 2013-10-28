@@ -31,7 +31,7 @@ public class CorsTest extends TestInitialize {
 	@Test(groups = { "cors" })
 	public void test() throws IOException {
 
-		S3Utils s3Utils = new S3Utils(); // keyS3, secretS3, serverS3
+		S3Utils s3Utils = new S3Utils(keyS3, secretS3, serverS3);
 		s3client = s3Utils.getClient();
 
 		// Create a new configuration request and add two rules
