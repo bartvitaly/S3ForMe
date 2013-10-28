@@ -16,7 +16,6 @@ import com.amazonaws.services.s3.model.CORSRule.AllowedMethods;
 
 public class Cors_Negative_Test extends TestInitialize {
 
-	static final String RESPONSE_CODE_SUCCESS = "200";
 	static final String RESPONSE_MESSAGE_403 = "403";
 
 	String crossOriginUrl = homeAlias;

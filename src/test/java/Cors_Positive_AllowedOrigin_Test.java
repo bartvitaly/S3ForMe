@@ -14,7 +14,7 @@ import org.testng.annotations.Test;
 
 import com.amazonaws.services.s3.model.CORSRule.AllowedMethods;
 
-public class Cors_Positive_AO_Test extends TestInitialize {
+public class Cors_Positive_AllowedOrigin_Test extends TestInitialize {
 
 	static final String RESPONSE_CODE_SUCCESS = "200";
 
@@ -24,44 +24,44 @@ public class Cors_Positive_AO_Test extends TestInitialize {
 
 	S3Utils s3Utils;
 
-	@BeforeTest(groups = { "corsAPI_Negative" })
+	@BeforeTest(groups = { "corsAPI_ao" })
 	public void init() {
 		s3Utils = new S3Utils(keyS3, secretS3, serverS3);
 		s3Utils.setBacket(bucket);
 	}
 
-	@AfterTest(groups = { "corsAPI_Negative" })
+	@AfterTest(groups = { "corsAPI_ao" })
 	public void tear() {
 		WebDriverCommon.takeScreenshot(driver);
 		driver.close();
 		driver.quit();
 	}
 
-	@Test(groups = { "corsAPI_Negative" })
+	@Test(groups = { "corsAPI_ao" })
 	public void negativeGet_Test() throws IOException {
 		Assert.assertEquals(testAllowedOrigin(homeAlias, "GET", nodeXpath),
 				RESPONSE_CODE_SUCCESS);
 	}
 
-	@Test(groups = { "corsAPI_Negative" })
+	@Test(groups = { "corsAPI_ao" })
 	public void negativePost_Test() throws IOException {
 		Assert.assertEquals(testAllowedOrigin(homeAlias, "POST", nodeXpath),
 				RESPONSE_CODE_SUCCESS);
 	}
 
-	@Test(groups = { "corsAPI_Negative" })
+	@Test(groups = { "corsAPI_ao" })
 	public void negativePut_Test() throws IOException {
 		Assert.assertEquals(testAllowedOrigin(homeAlias, "PUT", nodeXpath),
 				RESPONSE_CODE_SUCCESS);
 	}
 
-	@Test(groups = { "corsAPI_Negative" })
+	@Test(groups = { "corsAPI_ao" })
 	public void negativeDelete_Test() throws IOException {
 		Assert.assertEquals(testAllowedOrigin(homeAlias, "DELETE", nodeXpath),
 				RESPONSE_CODE_SUCCESS);
 	}
 
-	@Test(groups = { "corsAPI_Negative" })
+	@Test(groups = { "corsAPI_ao" })
 	public void negativeHead_Test() throws IOException {
 		Assert.assertEquals(testAllowedOrigin(homeAlias, "HEAD", nodeXpath),
 				RESPONSE_CODE_SUCCESS);

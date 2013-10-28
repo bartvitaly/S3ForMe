@@ -52,7 +52,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		s3client.setEndpoint(server);
 	}
 
-	public S3Utils(boolean authorize) {
+	public S3Utils(boolean authorize, String server) {
 		if (!authorize) {
 			s3client = new AmazonS3Client();
 		} else {
@@ -62,11 +62,6 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	}
 
 	public AmazonS3Client getClient() {
-
-		if (s3client == null) {
-			new S3Utils();
-		}
-
 		return s3client;
 	}
 

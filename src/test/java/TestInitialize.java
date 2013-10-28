@@ -37,13 +37,14 @@ public class TestInitialize extends WebDriverCommon {
 	public static Logger logger = Logger.getLogger(TestInitialize.class);
 
 	@BeforeSuite(groups = { "test", "bucketWrite", "corsWD", "corsWDNew",
-			"corsAPI", "corsAPI_Negative" })
+			"corsAPI", "corsAPI_Negative", "corsAPI_ao" })
 	public void initLogger() {
 		BasicConfigurator.configure();
 		// DOMConfigurator.configure("log4j.xml");
 	}
 
-	@BeforeTest(groups = { "corsWD", "corsWDNew", "corsAPI" })
+	@BeforeTest(groups = { "corsWD", "corsWDNew", "corsAPI",
+			"corsAPI_Negative", "corsAPI_ao" })
 	public void createDriver() {
 
 		System.setProperty("webdriver.chrome.driver",
