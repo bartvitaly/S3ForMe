@@ -85,7 +85,8 @@ public class S3Utils extends Common implements S3UtilsInterface {
 			AllowedMethods[] allowedMethods, String[] allowedOrigins,
 			String[] allowedHeaders, String[] exposedHeaders) {
 
-		BucketCrossOriginConfiguration configuration = new BucketCrossOriginConfiguration();
+		BucketCrossOriginConfiguration configuration = s3client
+				.getBucketCrossOriginConfiguration(bucketName);
 
 		CORSRule rule = new CORSRule().withId(ruleId)
 				.withMaxAgeSeconds(maxAgeSeconds)

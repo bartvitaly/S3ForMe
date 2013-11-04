@@ -114,8 +114,19 @@ public class Common {
 			return false;
 		}
 
-		boolean result = list.retainAll(list_2) && list_2.retainAll(list);
-		return result;
+		if (list.size() != list_2.size()) {
+			return false;
+		}
+
+		if (!list.retainAll(list_2) && !list_2.retainAll(list)) {
+			return true;
+		}
+
+		if (list.retainAll(list_2) && list_2.retainAll(list)) {
+			return true;
+		}
+
+		return true;
 	}
 
 	public static boolean compareHeaders(Header[] aHeader, Header[] bHeader) {

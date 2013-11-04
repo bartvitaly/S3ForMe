@@ -1,18 +1,12 @@
 package test.java;
 
-import java.util.concurrent.TimeUnit;
-
 import me.s3for.common.FileUtils;
 import me.s3for.common.PropertiesUtils;
 import me.s3for.common.WebDriverCommon;
 
 import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
-import org.openqa.selenium.chrome.ChromeDriver;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.testng.annotations.BeforeSuite;
-import org.testng.annotations.BeforeTest;
 
 public class TestInitialize extends WebDriverCommon {
 
@@ -46,24 +40,6 @@ public class TestInitialize extends WebDriverCommon {
 	public void initLogger() {
 		BasicConfigurator.configure();
 		// DOMConfigurator.configure("log4j.xml");
-	}
-
-	@BeforeTest(groups = { "corsWD", "corsWDNew", "corsAPI",
-			"corsAPI_Negative", "corsAPI_ao" })
-	public void createDriver() {
-
-		System.setProperty("webdriver.chrome.driver",
-				PropertiesUtils.getProperty("webdriver.chrome.driver"));
-
-		if (browser.equals("chrome")) {
-			driver = new ChromeDriver();
-		} else if (browser.equals("firefox")) {
-			driver = new FirefoxDriver();
-		} else {
-			driver = new HtmlUnitDriver();
-		}
-
-		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);
 	}
 
 }
