@@ -16,9 +16,11 @@ import me.s3for.interfaces.S3UtilsInterface;
 
 import org.apache.http.Header;
 
+import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.BucketCrossOriginConfiguration;
 import com.amazonaws.services.s3.model.CORSRule;
@@ -29,6 +31,8 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.CORSRule.AllowedMethods;
+import com.amazonaws.services.s3.model.transform.XmlResponsesSaxParser;
+import com.amazonaws.services.s3.model.transform.XmlResponsesSaxParser.BucketCrossOriginConfigurationHandler;
 
 public class S3Utils extends Common implements S3UtilsInterface {
 
@@ -81,12 +85,18 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		return htm;
 	}
 
-	public void setCrosConfiguration(String ruleId, int maxAgeSeconds,
+	public void setCorsConfiguration(String ruleId, int maxAgeSeconds,
 			AllowedMethods[] allowedMethods, String[] allowedOrigins,
 			String[] allowedHeaders, String[] exposedHeaders) {
 
-		BucketCrossOriginConfiguration configuration = s3client
-				.getBucketCrossOriginConfiguration(bucketName);
+		BucketCrossOriginConfiguration configuration;
+
+		if (!isCorsConfigurationExists()) {
+			configuration = new BucketCrossOriginConfiguration();
+		} else {
+			configuration = s3client
+					.getBucketCrossOriginConfiguration(bucketName);
+		}
 
 		CORSRule rule = new CORSRule().withId(ruleId)
 				.withMaxAgeSeconds(maxAgeSeconds)
@@ -99,6 +109,22 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 		s3client.setBucketCrossOriginConfiguration(bucketName, configuration);
 
+	}
+
+	public boolean isCorsConfigurationExists() {
+
+		try {
+			if (s3client.getBucketCrossOriginConfiguration(bucketName) == null) {
+				return false;
+			}
+		} catch (AmazonClientException e) {
+			if (e.getMessage().toString()
+					.contains("BucketCrossOriginConfigurationHandler")) {
+				e.printStackTrace();
+				return false;
+			}
+		}
+		return true;
 	}
 
 	public Map<String, Object> getMetaData(S3Object s3object) {

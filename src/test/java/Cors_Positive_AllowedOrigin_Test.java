@@ -81,7 +81,7 @@ public class Cors_Positive_AllowedOrigin_Test extends TestInitialize {
 				"x-authorization" };
 		String[] exposedHeaders = new String[] { null };
 
-		s3Utils.setCrosConfiguration(ruleId, maxAgeSeconds, allowedMethods,
+		s3Utils.setCorsConfiguration(ruleId, maxAgeSeconds, allowedMethods,
 				allowedOrigins, allowedHeaders, exposedHeaders);
 
 		String testHtm = S3Utils.creteCorsHtml(path, corsJsUri, requestType,
