@@ -31,7 +31,7 @@ function httpRequest(type, url) {
 		xmlHttp.send(null);
 		xmlHttp.status
 	} catch (err) {
-		return err.message;
+		return err.message.concat(' ').concat(err.name);
 	}
 	return xmlHttp.status;
 }
