@@ -36,7 +36,7 @@ function httpRequest(type, url) {
 	var xmlHttp = null;
 	try {
 		xmlHttp = new XMLHttpRequest();
-		xmlHttp.open(type, url, false);
+		xmlHttp.open(type, url.concat('?attr=1'), false);
 		xmlHttp.send(null);
 		xmlHttp.status
 	} catch (err) {
