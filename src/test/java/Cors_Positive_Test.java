@@ -28,7 +28,7 @@ public class Cors_Positive_Test extends TestInitialize {
 	@BeforeTest(groups = { "corsAPI" })
 	public void init() {
 		s3Utils = new S3Utils(keyS3, secretS3, serverS3);
-		s3Utils.setBacket(bucket);
+		s3Utils.setBacket(bucketName);
 	}
 
 	@AfterTest(groups = { "corsAPI" })
@@ -71,16 +71,22 @@ public class Cors_Positive_Test extends TestInitialize {
 	public boolean testAllowedOrigin(String allowedOrigin, String requestType,
 			String nodeXpath, String expectedResponse) throws IOException {
 
-		String[] allowedOrigins = new String[] { allowedOrigin };
-
+		String ruleId = "rule";
+		int maxAgeSeconds = 1;
 		AllowedMethods[] allowedMethods = new AllowedMethods[] { S3Utils
 				.getAllowedMethod(requestType) };
-		s3Utils.setCrosConfiguration(allowedOrigins, allowedMethods);
+		String[] allowedOrigins = new String[] { allowedOrigin };
+		String[] allowedHeaders = new String[] { "x-custom-header",
+				"x-authorization" };
+		String[] exposedHeaders = new String[] { null };
+
+		s3Utils.setCrosConfiguration(ruleId, maxAgeSeconds, allowedMethods,
+				allowedOrigins, allowedHeaders, exposedHeaders);
 
 		String testHtm = S3Utils.creteCorsHtml(path, corsJsUri, requestType,
 				crossOriginUrl, nodeXpath);
 
-		s3Utils.putTextFile(INDEX_FILE, testHtm, bucket);
+		s3Utils.putTextFile(INDEX_FILE, testHtm, bucketName);
 
 		try {
 			Thread.sleep(1000);

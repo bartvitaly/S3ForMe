@@ -54,7 +54,7 @@ public class S3Test extends TestInitialize {
 		List<Bucket> bucketList = s3Utils.getBucketList();
 		List<Bucket> bucketListAws = s3UtilsAws.getBucketList();
 
-		Assert.assertTrue(Common.compareLists(bucketList, bucketListAws));
+		Assert.assertTrue(Common.compareBuckets(bucketList, bucketListAws));
 	}
 
 	/**

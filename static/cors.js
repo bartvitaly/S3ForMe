@@ -23,20 +23,11 @@ function createCORSRequest(method, url) {
 	return xhr;
 }
 
-function httpGet(theUrl) {
-	var xmlHttp = null;
-
-	xmlHttp = new XMLHttpRequest();
-	xmlHttp.open("GET", theUrl, false);
-	xmlHttp.send(null);
-	return xmlHttp.responseText;
-}
-
 function httpRequest(type, url) {
 	var xmlHttp = null;
 	try {
-		xmlHttp = new XMLHttpRequest();
-		xmlHttp.open(type, url.concat('?attr=1'), false);
+		xmlHttp = new createCORSRequest(type, url);
+		// xmlHttp.open(type, url.concat('?attr=1'), false);
 		xmlHttp.send(null);
 		xmlHttp.status
 	} catch (err) {

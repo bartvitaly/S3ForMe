@@ -25,14 +25,19 @@ public class TestInitialize extends WebDriverCommon {
 	final static String homeAlias = PropertiesUtils.getProperty("homeAlias");
 	final static String browser = PropertiesUtils.getProperty("browser");
 	final static String corsXml = PropertiesUtils.getProperty("corsXML");
+	final static String corsJs = PropertiesUtils.getProperty("corsJs");
 	final static String corsXmlPath = FileUtils.getRootPath() + "\\static\\"
 			+ corsXml;
 
+	final static String corsJsPath = FileUtils.getRootPath() + "\\static\\"
+			+ corsJs;
 	static final String INDEX_FILE = PropertiesUtils.getProperty("indexHtm");;
 	final static String path = FileUtils.getRootPath() + "\\static\\"
 			+ INDEX_FILE;
 
-	final static String bucket = PropertiesUtils.getProperty("bucket");
+	final static String bucketName = PropertiesUtils.getProperty("bucket");
+	final static String bucketNameAws = PropertiesUtils
+			.getProperty("AWSbucket");
 
 	public static Logger logger = Logger.getLogger(TestInitialize.class);
 

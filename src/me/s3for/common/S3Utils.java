@@ -81,14 +81,18 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		return htm;
 	}
 
-	public void setCrosConfiguration(String[] AllowedOrigins,
-			AllowedMethods[] allowedMethods) {
+	public void setCrosConfiguration(String ruleId, int maxAgeSeconds,
+			AllowedMethods[] allowedMethods, String[] allowedOrigins,
+			String[] allowedHeaders, String[] exposedHeaders) {
 
 		BucketCrossOriginConfiguration configuration = new BucketCrossOriginConfiguration();
 
-		CORSRule rule = new CORSRule().withId("CORSRule")
+		CORSRule rule = new CORSRule().withId(ruleId)
+				.withMaxAgeSeconds(maxAgeSeconds)
 				.withAllowedMethods(Arrays.asList(allowedMethods))
-				.withAllowedOrigins(Arrays.asList(AllowedOrigins));
+				.withAllowedOrigins(Arrays.asList(allowedOrigins))
+				.withAllowedHeaders(Arrays.asList(allowedHeaders))
+				.withExposedHeaders(Arrays.asList(exposedHeaders));
 
 		configuration.setRules(Arrays.asList(new CORSRule[] { rule }));
 
@@ -252,6 +256,87 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		writer.close();
 
 		return file;
+	}
+
+	public static void printCORSConfiguration(
+			BucketCrossOriginConfiguration configuration) {
+
+		if (configuration == null) {
+			System.out.println("\nConfiguration is null.");
+			return;
+		}
+
+		System.out.format("\nConfiguration has %s rules:\n", configuration
+				.getRules().size());
+		for (CORSRule rule : configuration.getRules()) {
+			System.out.format("Rule ID: %s\n", rule.getId());
+			System.out.format("MaxAgeSeconds: %s\n", rule.getMaxAgeSeconds());
+			System.out.format("AllowedMethod: %s\n", rule.getAllowedMethods()
+					.toArray());
+			System.out.format("AllowedOrigins: %s\n", rule.getAllowedOrigins());
+			System.out.format("AllowedHeaders: %s\n", rule.getAllowedHeaders());
+			System.out.format("ExposeHeader: %s\n", rule.getExposedHeaders());
+		}
+	}
+
+	public static boolean compareRules(
+			BucketCrossOriginConfiguration configuration,
+			BucketCrossOriginConfiguration configuration_2) {
+		if (configuration == null || configuration_2 == null) {
+			System.out.println("\nConfiguration is null.");
+			return false;
+		}
+
+		boolean result = true;
+
+		List<CORSRule> ruleList = configuration.getRules();
+		List<CORSRule> ruleList_2 = configuration_2.getRules();
+
+		int size = ruleList.size();
+		if (size != ruleList_2.size()) {
+			System.out.println("\nAmount of rules are not equal");
+			result = false;
+		}
+
+		for (int i = 0; i < size; i++) {
+			CORSRule rule = ruleList.get(i);
+			CORSRule rule_2 = ruleList_2.get(i);
+
+			if (!rule.getId().equals(rule_2.getId())) {
+				System.out.println("\nRules Ids are not equal");
+				result = false;
+			}
+			if (rule.getMaxAgeSeconds() != rule_2.getMaxAgeSeconds()) {
+				System.out.println("\nRules getMaxAgeSeconds are not equal");
+				result = false;
+			}
+			if (!Common.compareLists(rule.getAllowedMethods(),
+					rule_2.getAllowedMethods())) {
+				System.out.println("\nRules getAllowedMethods are not equal");
+				result = false;
+			}
+
+			if (!Common.compareLists(rule.getAllowedOrigins(),
+					rule_2.getAllowedOrigins())) {
+				System.out.println("\nRules getAllowedOrigins are not equal");
+				result = false;
+			}
+
+			if (!Common.compareLists(rule.getAllowedHeaders(),
+					rule_2.getAllowedHeaders())) {
+				System.out.println("\nRules getAllowedHeaders are not equal");
+				result = false;
+			}
+
+			if (!Common.compareLists(rule.getExposedHeaders(),
+					rule_2.getExposedHeaders())) {
+				System.out.println("\nRules getExposedHeaders are not equal");
+				result = false;
+			}
+
+		}
+
+		return result;
 	}
 
 	/**

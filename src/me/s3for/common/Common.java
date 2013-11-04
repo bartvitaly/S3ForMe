@@ -9,6 +9,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.Header;
@@ -85,7 +86,7 @@ public class Common {
 
 	}
 
-	public static boolean compareLists(List<Bucket> aList, List<Bucket> bList) {
+	public static boolean compareBuckets(List<Bucket> aList, List<Bucket> bList) {
 
 		int sizeOfTheShortestList = Math.min(aList.size(), bList.size());
 
@@ -98,6 +99,23 @@ public class Common {
 
 		return true;
 
+	}
+
+	public static boolean compareLists(List<?> list, List<?> list_2) {
+		if (list == null && list_2 == null) {
+			return true;
+		}
+
+		if (list == null && list_2 != null) {
+			return false;
+		}
+
+		if (list != null && list_2 == null) {
+			return false;
+		}
+
+		boolean result = list.retainAll(list_2) && list_2.retainAll(list);
+		return result;
 	}
 
 	public static boolean compareHeaders(Header[] aHeader, Header[] bHeader) {

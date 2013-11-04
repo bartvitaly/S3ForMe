@@ -35,7 +35,7 @@ public class CorsWebDriverTest_New extends TestInitialize {
 
 		// Put the file to a basket
 		S3Utils s3Utils = new S3Utils();
-		s3Utils.putTextFile(corsXml, corsXmlEdited, bucket);
+		s3Utils.putTextFile(corsXml, corsXmlEdited, bucketName);
 
 		driver.get(homeAlias + "/index.htm");
 		WebElement element = wait(By.xpath("//body/div[@response='status']"), 3);
@@ -57,7 +57,7 @@ public class CorsWebDriverTest_New extends TestInitialize {
 
 		// Put the file to a basket
 		S3Utils s3Utils = new S3Utils();
-		s3Utils.putTextFile(corsXml, corsXmlEdited, bucket);
+		s3Utils.putTextFile(corsXml, corsXmlEdited, bucketName);
 
 		driver.get(home);
 		WebElement element = wait(By.xpath("//body/div[@response='status']"), 3);
@@ -67,5 +67,5 @@ public class CorsWebDriverTest_New extends TestInitialize {
 		Assert.assertEquals(element.getText(), RESPONSE_CODE_SUCCESS);
 
 	}
-	
+
 }
