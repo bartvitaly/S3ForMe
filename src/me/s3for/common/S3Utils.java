@@ -20,19 +20,20 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
+import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.BucketCrossOriginConfiguration;
 import com.amazonaws.services.s3.model.CORSRule;
+import com.amazonaws.services.s3.model.CORSRule.AllowedMethods;
+import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.GroupGrantee;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
-import com.amazonaws.services.s3.model.CORSRule.AllowedMethods;
-import com.amazonaws.services.s3.model.transform.XmlResponsesSaxParser;
-import com.amazonaws.services.s3.model.transform.XmlResponsesSaxParser.BucketCrossOriginConfigurationHandler;
 
 public class S3Utils extends Common implements S3UtilsInterface {
 
@@ -111,6 +112,37 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	}
 
+	public void setCorsConfiguration(String requestMethod) {
+		String ruleId = "rule";
+		int maxAgeSeconds = 1;
+		AllowedMethods[] allowedMethods = new AllowedMethods[] { S3Utils
+				.getAllowedMethod(requestMethod) };
+		String[] allowedOrigins = new String[] { null };
+		String[] allowedHeaders = new String[] { null };
+		String[] exposedHeaders = new String[] { null };
+
+		BucketCrossOriginConfiguration configuration;
+
+		if (!isCorsConfigurationExists()) {
+			configuration = new BucketCrossOriginConfiguration();
+		} else {
+			configuration = s3client
+					.getBucketCrossOriginConfiguration(bucketName);
+		}
+
+		CORSRule rule = new CORSRule().withId(ruleId)
+				.withMaxAgeSeconds(maxAgeSeconds)
+				.withAllowedMethods(Arrays.asList(allowedMethods))
+				.withAllowedOrigins(Arrays.asList(allowedOrigins))
+				.withAllowedHeaders(Arrays.asList(allowedHeaders))
+				.withExposedHeaders(Arrays.asList(exposedHeaders));
+
+		configuration.setRules(Arrays.asList(new CORSRule[] { rule }));
+
+		s3client.setBucketCrossOriginConfiguration(bucketName, configuration);
+
+	}
+
 	public boolean isCorsConfigurationExists() {
 
 		try {
@@ -164,19 +196,26 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		return null;
 	}
 
-	public void putTextFile(String objectName, String text, String backetName) {
+	public void putTextFile(String objectName, String text, String bucketName) {
+
 		try {
-			s3client.putObject(new PutObjectRequest(backetName, objectName,
-					FileUtils.create(objectName, text)));
+			s3client.putObject(new PutObjectRequest(bucketName, objectName,
+					FileUtils.create(objectName, text))
+					.withCannedAcl(CannedAccessControlList.PublicRead));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
 	public void put(String objectName) {
+		AccessControlList acl = new AccessControlList();
+
+		acl.grantPermission(GroupGrantee.AllUsers, Permission.Read);
+
 		try {
-			s3client.putObject(new PutObjectRequest(bucket.getName(),
-					objectName, createSampleFile()));
+			s3client.putObject(new PutObjectRequest(bucketName, objectName,
+					createSampleFile()).withAccessControlList(acl));
+			// s3client.setObjectAcl(bucketName, objectName, acl);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

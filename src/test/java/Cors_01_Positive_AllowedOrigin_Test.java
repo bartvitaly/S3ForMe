@@ -15,59 +15,59 @@ import org.testng.annotations.Test;
 
 import com.amazonaws.services.s3.model.CORSRule.AllowedMethods;
 
-public class Cors_Positive_AllowedOrigin_Test extends TestInitialize {
+public class Cors_01_Positive_AllowedOrigin_Test extends
+		TestInitializeWebDriver {
 
 	static final String RESPONSE_CODE_SUCCESS = "200";
 
-	String crossOriginUrl = homeAlias + "/" + INDEX_FILE;
-	String corsJsUri = homeAlias + "/cors.js";
-	String corsJsText = "";
+	String crossOriginUrl = serverS3 + "/" + homeNoHttp + "/" + TEST_FILE;
+	String corsJsUri = home + "/" + corsJs;
 	String nodeXpath = "//body//div";
 
 	S3Utils s3Utils;
 
-	@BeforeTest(groups = { "corsAPI_ao" })
+	@BeforeTest(groups = { "cors" })
 	public void init() {
 		s3Utils = new S3Utils(keyS3, secretS3, serverS3);
 		s3Utils.setBacket(bucketName);
 	}
 
-	@AfterTest(groups = { "corsAPI_ao" })
+	@AfterTest(groups = { "cors" })
 	public void tear() {
 		WebDriverCommon.takeScreenshot(driver);
 		driver.close();
 		driver.quit();
 	}
 
-	@Test(groups = { "corsAPI_ao" })
-	public void negativeGet_Test() throws IOException {
-		Assert.assertEquals(testAllowedOrigin(homeAlias, "GET", nodeXpath),
+	@Test(groups = { "cors" })
+	public void positiveGet_Test() throws IOException {
+		Assert.assertEquals(testAllowedOrigin(home, "GET", nodeXpath),
 				RESPONSE_CODE_SUCCESS);
 	}
 
-	// @Test(groups = { "corsAPI_ao" })
-	// public void negativePost_Test() throws IOException {
-	// Assert.assertEquals(testAllowedOrigin(homeAlias, "POST", nodeXpath),
-	// RESPONSE_CODE_SUCCESS);
-	// }
-	//
-	// @Test(groups = { "corsAPI_ao" })
-	// public void negativePut_Test() throws IOException {
-	// Assert.assertEquals(testAllowedOrigin(homeAlias, "PUT", nodeXpath),
-	// RESPONSE_CODE_SUCCESS);
-	// }
-	//
-	// @Test(groups = { "corsAPI_ao" })
-	// public void negativeDelete_Test() throws IOException {
-	// Assert.assertEquals(testAllowedOrigin(homeAlias, "DELETE", nodeXpath),
-	// RESPONSE_CODE_SUCCESS);
-	// }
-	//
-	// @Test(groups = { "corsAPI_ao" })
-	// public void negativeHead_Test() throws IOException {
-	// Assert.assertEquals(testAllowedOrigin(homeAlias, "HEAD", nodeXpath),
-	// RESPONSE_CODE_SUCCESS);
-	// }
+	@Test(groups = { "cors" })
+	public void positivePost_Test() throws IOException {
+		Assert.assertEquals(testAllowedOrigin(home, "POST", nodeXpath),
+				RESPONSE_CODE_SUCCESS);
+	}
+
+	@Test(groups = { "cors" })
+	public void positivePut_Test() throws IOException {
+		Assert.assertEquals(testAllowedOrigin(home, "PUT", nodeXpath),
+				RESPONSE_CODE_SUCCESS);
+	}
+
+	@Test(groups = { "cors" })
+	public void positiveDelete_Test() throws IOException {
+		Assert.assertEquals(testAllowedOrigin(home, "DELETE", nodeXpath),
+				RESPONSE_CODE_SUCCESS);
+	}
+
+	@Test(groups = { "cors" })
+	public void positiveHead_Test() throws IOException {
+		Assert.assertEquals(testAllowedOrigin(home, "HEAD", nodeXpath),
+				RESPONSE_CODE_SUCCESS);
+	}
 
 	public String testAllowedOrigin(String allowedOrigin, String requestType,
 			String nodeXpath) throws IOException {
@@ -77,8 +77,7 @@ public class Cors_Positive_AllowedOrigin_Test extends TestInitialize {
 		AllowedMethods[] allowedMethods = new AllowedMethods[] { S3Utils
 				.getAllowedMethod(requestType) };
 		String[] allowedOrigins = new String[] { allowedOrigin };
-		String[] allowedHeaders = new String[] { "x-custom-header",
-				"x-authorization" };
+		String[] allowedHeaders = new String[] { null };
 		String[] exposedHeaders = new String[] { null };
 
 		s3Utils.setCorsConfiguration(ruleId, maxAgeSeconds, allowedMethods,
