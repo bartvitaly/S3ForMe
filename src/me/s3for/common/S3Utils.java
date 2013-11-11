@@ -44,7 +44,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	AmazonS3Client s3client;
 	Bucket bucket;
-	String bucketName;
+	public String bucketName;
 
 	// Constructors
 	public S3Utils(String key, String secret, String server) {

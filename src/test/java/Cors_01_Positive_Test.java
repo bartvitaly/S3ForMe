@@ -2,6 +2,8 @@ package test.java;
 
 import java.io.IOException;
 
+import me.s3for.common.Common;
+import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
 import me.s3for.common.WebDriverCommon;
 
@@ -44,29 +46,30 @@ public class Cors_01_Positive_Test extends TestInitializeWebDriver {
 				RESPONSE_CODE_SUCCESS));
 	}
 
-	@Test(groups = { "cors" })
-	public void positivePost_Test() throws IOException {
-		Assert.assertTrue(testAllowedOrigin(home, "POST", nodeXpath,
-				RESPONSE_CODE_SUCCESS));
-	}
-
-	@Test(groups = { "cors" })
-	public void positivePut_Test() throws IOException {
-		Assert.assertTrue(testAllowedOrigin(home, "PUT", nodeXpath,
-				RESPONSE_CODE_SUCCESS));
-	}
-
-	@Test(groups = { "cors" })
-	public void positiveDelete_Test() throws IOException {
-		Assert.assertTrue(testAllowedOrigin(home, "DELETE", nodeXpath,
-				RESPONSE_CODE_SUCCESS));
-	}
-
-	@Test(groups = { "cors" })
-	public void positiveHead_Test() throws IOException {
-		Assert.assertTrue(testAllowedOrigin(home, "HEAD", nodeXpath,
-				RESPONSE_CODE_SUCCESS));
-	}
+	//
+	// @Test(groups = { "cors" })
+	// public void positivePost_Test() throws IOException {
+	// Assert.assertTrue(testAllowedOrigin(home, "POST", nodeXpath,
+	// RESPONSE_CODE_SUCCESS));
+	// }
+	//
+	// @Test(groups = { "cors" })
+	// public void positivePut_Test() throws IOException {
+	// Assert.assertTrue(testAllowedOrigin(home, "PUT", nodeXpath,
+	// RESPONSE_CODE_SUCCESS));
+	// }
+	//
+	// @Test(groups = { "cors" })
+	// public void positiveDelete_Test() throws IOException {
+	// Assert.assertTrue(testAllowedOrigin(home, "DELETE", nodeXpath,
+	// RESPONSE_CODE_SUCCESS));
+	// }
+	//
+	// @Test(groups = { "cors" })
+	// public void positiveHead_Test() throws IOException {
+	// Assert.assertTrue(testAllowedOrigin(home, "HEAD", nodeXpath,
+	// RESPONSE_CODE_SUCCESS));
+	// }
 
 	public boolean testAllowedOrigin(String allowedOrigin, String requestType,
 			String nodeXpath, String expectedResponse) throws IOException {
@@ -87,12 +90,9 @@ public class Cors_01_Positive_Test extends TestInitializeWebDriver {
 
 		s3Utils.putTextFile(TEST_FILE, "", bucketName);
 		s3Utils.putTextFile(INDEX_FILE, testHtm, bucketName);
+		s3Utils.putTextFile(corsJs, FileUtils.read(corsJsPath), bucketName);
 
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+		Common.waitSec(1);
 
 		driver.get(home);
 		WebElement element = wait(By.xpath(nodeXpath), 3);

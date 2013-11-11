@@ -2,6 +2,7 @@ package test.java;
 
 import java.io.IOException;
 
+import me.s3for.common.Common;
 import me.s3for.common.PropertiesUtils;
 import me.s3for.common.S3Utils;
 
@@ -81,10 +82,12 @@ public class Cors_02_BucketConfiguration_Test extends TestInitialize {
 		s3client.deleteBucketCrossOriginConfiguration(bucketName);
 		s3clientAws.deleteBucketCrossOriginConfiguration(bucketNameAws);
 
+		Common.waitSec(1);
+
 		Assert.assertFalse(s3UtilsAws.isCorsConfigurationExists(),
-				"Bucket cors configuration exists");
+				"Bucket AWS cors configuration exists");
 		Assert.assertFalse(s3Utils.isCorsConfigurationExists(),
-				"Bucket cors configuration exists");
+				"Bucket S3 cors configuration exists");
 
 	}
 

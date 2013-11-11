@@ -118,11 +118,11 @@ public class Common {
 			return false;
 		}
 
-		if (!list.retainAll(list_2) && !list_2.retainAll(list)) {
-			return true;
+		if (!list.retainAll(list_2) && list_2.retainAll(list)) {
+			return false;
 		}
 
-		if (list.retainAll(list_2) && list_2.retainAll(list)) {
+		if (list.retainAll(list_2) && !list_2.retainAll(list)) {
 			return true;
 		}
 
@@ -143,4 +143,13 @@ public class Common {
 		return true;
 
 	}
+
+	public static void waitSec(int sec) {
+		try {
+			Thread.sleep(sec * 1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 }

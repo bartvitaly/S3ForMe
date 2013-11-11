@@ -45,29 +45,29 @@ public class Cors_01_Positive_AllowedOrigin_Test extends
 				RESPONSE_CODE_SUCCESS);
 	}
 
-	@Test(groups = { "cors" })
-	public void positivePost_Test() throws IOException {
-		Assert.assertEquals(testAllowedOrigin(home, "POST", nodeXpath),
-				RESPONSE_CODE_SUCCESS);
-	}
-
-	@Test(groups = { "cors" })
-	public void positivePut_Test() throws IOException {
-		Assert.assertEquals(testAllowedOrigin(home, "PUT", nodeXpath),
-				RESPONSE_CODE_SUCCESS);
-	}
-
-	@Test(groups = { "cors" })
-	public void positiveDelete_Test() throws IOException {
-		Assert.assertEquals(testAllowedOrigin(home, "DELETE", nodeXpath),
-				RESPONSE_CODE_SUCCESS);
-	}
-
-	@Test(groups = { "cors" })
-	public void positiveHead_Test() throws IOException {
-		Assert.assertEquals(testAllowedOrigin(home, "HEAD", nodeXpath),
-				RESPONSE_CODE_SUCCESS);
-	}
+	// @Test(groups = { "cors" })
+	// public void positivePost_Test() throws IOException {
+	// Assert.assertEquals(testAllowedOrigin(home, "POST", nodeXpath),
+	// RESPONSE_CODE_SUCCESS);
+	// }
+	//
+	// @Test(groups = { "cors" })
+	// public void positivePut_Test() throws IOException {
+	// Assert.assertEquals(testAllowedOrigin(home, "PUT", nodeXpath),
+	// RESPONSE_CODE_SUCCESS);
+	// }
+	//
+	// @Test(groups = { "cors" })
+	// public void positiveDelete_Test() throws IOException {
+	// Assert.assertEquals(testAllowedOrigin(home, "DELETE", nodeXpath),
+	// RESPONSE_CODE_SUCCESS);
+	// }
+	//
+	// @Test(groups = { "cors" })
+	// public void positiveHead_Test() throws IOException {
+	// Assert.assertEquals(testAllowedOrigin(home, "HEAD", nodeXpath),
+	// RESPONSE_CODE_SUCCESS);
+	// }
 
 	public String testAllowedOrigin(String allowedOrigin, String requestType,
 			String nodeXpath) throws IOException {
@@ -77,8 +77,8 @@ public class Cors_01_Positive_AllowedOrigin_Test extends
 		AllowedMethods[] allowedMethods = new AllowedMethods[] { S3Utils
 				.getAllowedMethod(requestType) };
 		String[] allowedOrigins = new String[] { allowedOrigin };
-		String[] allowedHeaders = new String[] { null };
-		String[] exposedHeaders = new String[] { null };
+		String[] allowedHeaders = new String[] { "*" };
+		String[] exposedHeaders = new String[] { "*" };
 
 		s3Utils.setCorsConfiguration(ruleId, maxAgeSeconds, allowedMethods,
 				allowedOrigins, allowedHeaders, exposedHeaders);
@@ -86,8 +86,9 @@ public class Cors_01_Positive_AllowedOrigin_Test extends
 		String testHtm = S3Utils.creteCorsHtml(path, corsJsUri, requestType,
 				crossOriginUrl, nodeXpath);
 
-		s3Utils.putTextFile(corsJs, FileUtils.read(corsJsPath), bucketName);
 		s3Utils.putTextFile(INDEX_FILE, testHtm, bucketName);
+		s3Utils.putTextFile(TEST_FILE, "", bucketName);
+		s3Utils.putTextFile(corsJs, FileUtils.read(corsJsPath), bucketName);
 
 		try {
 			Thread.sleep(1000);
