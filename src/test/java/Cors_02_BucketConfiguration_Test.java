@@ -32,7 +32,7 @@ public class Cors_02_BucketConfiguration_Test extends TestInitialize {
 		AllowedMethods[] allowedMethods = new AllowedMethods[] {
 				S3Utils.getAllowedMethod("GET"),
 				S3Utils.getAllowedMethod("POST") };
-		String[] allowedOrigins = new String[] { home, homeAlias };
+		String[] allowedOrigins = new String[] { home, serverS3 };
 		String[] allowedHeaders = new String[] { "x-custom-header",
 				"x-authorization" };
 		String[] exposedHeaders = new String[] { "x-amz-server-side-encryption" };

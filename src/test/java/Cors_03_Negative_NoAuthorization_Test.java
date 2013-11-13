@@ -2,7 +2,6 @@ package test.java;
 
 import java.io.IOException;
 
-import me.s3for.common.PropertiesUtils;
 import me.s3for.common.S3Utils;
 
 import org.testng.Assert;
@@ -13,13 +12,6 @@ import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.BucketCrossOriginConfiguration;
 
 public class Cors_03_Negative_NoAuthorization_Test extends TestInitialize {
-
-	final static String keyS3 = PropertiesUtils.getProperty("S3AccessKeyId");
-	final static String secretS3 = PropertiesUtils
-			.getProperty("S3SecretAccessKeyID");
-	final static String serverS3 = PropertiesUtils.getProperty("S3server");
-
-	final static String home = PropertiesUtils.getProperty("home");
 
 	AmazonS3Client s3client, s3clientNoAuth;
 

@@ -16,7 +16,7 @@ public class TestInitialize extends WebDriverCommon {
 	final static String serverS3 = PropertiesUtils.getProperty("S3server");
 
 	final static String home = PropertiesUtils.getProperty("home");
-	final static String homeAlias = PropertiesUtils.getProperty("homeAlias");
+	final static String homeNoHttp = PropertiesUtils.getProperty("homeNoHttp");
 	final static String browser = PropertiesUtils.getProperty("browser");
 	final static String corsXml = PropertiesUtils.getProperty("corsXML");
 	final static String corsJs = PropertiesUtils.getProperty("corsJs");
@@ -25,7 +25,9 @@ public class TestInitialize extends WebDriverCommon {
 
 	final static String corsJsPath = FileUtils.getRootPath() + "\\static\\"
 			+ corsJs;
-	static final String INDEX_FILE = PropertiesUtils.getProperty("indexHtm");;
+	static final String INDEX_FILE = PropertiesUtils.getProperty("indexHtm");
+	static final String TEST_FILE = PropertiesUtils.getProperty("testFile");
+
 	final static String path = FileUtils.getRootPath() + "\\static\\"
 			+ INDEX_FILE;
 
@@ -33,10 +35,10 @@ public class TestInitialize extends WebDriverCommon {
 	final static String bucketNameAws = PropertiesUtils
 			.getProperty("AWSbucket");
 
-	public static Logger logger = Logger.getLogger(TestInitialize.class);
+	public static Logger logger = Logger
+			.getLogger(TestInitializeWebDriver.class);
 
-	@BeforeSuite(groups = { "test", "bucketWrite", "corsWD", "corsWDNew",
-			"corsAPI", "corsAPI_Negative", "corsAPI_ao" })
+	@BeforeSuite(groups = { "cors" })
 	public void initLogger() {
 		BasicConfigurator.configure();
 		// DOMConfigurator.configure("log4j.xml");
