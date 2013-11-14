@@ -2,6 +2,7 @@ package test.java;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
 
 import me.s3for.common.Common;
 import me.s3for.common.S3Utils;
@@ -27,7 +28,7 @@ public class Api_01_Get_Put_Object_Test extends TestInitialize {
 
 	@BeforeGroups(groups = { "api" })
 	public void before() {
-		// initiate S3 objects
+		// initiate S3 and AWS
 		s3Utils = new S3Utils(keyS3, secretS3, serverS3);
 		s3UtilsAws = new S3Utils();
 
@@ -81,6 +82,13 @@ public class Api_01_Get_Put_Object_Test extends TestInitialize {
 				s3ObjectMetadataAws.getRawMetadata(), "ETag");
 
 		Assert.assertEquals(eTag, eTagAws);
+
+		Map<String, Object> map = Common.compareMaps(
+				s3ObjectMetadata.getRawMetadata(),
+				s3ObjectMetadataAws.getRawMetadata());
+
+		System.out.println("Metadata: S3 vs AWS");
+		Common.printMap(map);
 
 	}
 }

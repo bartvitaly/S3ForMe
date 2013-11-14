@@ -218,8 +218,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 			file = createSampleFile();
 			PutObjectRequest putObjectRequest = new PutObjectRequest(
 					bucketName, objectName, file);
-			PutObjectResult putObjectResult = s3client
-					.putObject(putObjectRequest.withAccessControlList(acl));
+			s3client.putObject(putObjectRequest.withAccessControlList(acl));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -235,8 +234,8 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		try {
 			PutObjectRequest putObjectRequest = new PutObjectRequest(
 					bucketName, objectName, file);
-			putObjectResult = s3client
-					.putObject(putObjectRequest.withAccessControlList(acl));
+			putObjectResult = s3client.putObject(putObjectRequest
+					.withAccessControlList(acl));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
