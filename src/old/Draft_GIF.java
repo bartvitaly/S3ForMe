@@ -1,4 +1,4 @@
-package test.java;
+package old;
 
 import java.io.IOException;
 
@@ -12,6 +12,8 @@ import org.openqa.selenium.WebElement;
 import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.Test;
+
+import test.java.TestInitialize;
 
 public class Draft_GIF extends TestInitialize {
 

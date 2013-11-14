@@ -2,6 +2,7 @@ package test.java;
 
 import java.io.IOException;
 
+import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
 import me.s3for.common.WebDriverCommon;
 
@@ -18,6 +19,7 @@ public class Cors_01_Negative_Test extends TestInitializeWebDriver {
 
 	static final String RESPONSE_MESSAGE_403 = "403";
 	static final String RESPONSE_MESSAGE_501 = "501";
+	static final String RESPONSE_MESSAGE_FAILURE = "Failure NS_ERROR_FAILURE";
 
 	String crossOriginUrl = serverS3 + "/" + homeNoHttp + "/" + TEST_FILE;
 	String corsJsUri = home + "/cors.js";
@@ -42,32 +44,32 @@ public class Cors_01_Negative_Test extends TestInitializeWebDriver {
 	@Test(groups = { "cors" })
 	public void negativeGet_Test() throws IOException {
 		Assert.assertEquals(testAllowedOrigin(home, "GET", nodeXpath),
-				RESPONSE_MESSAGE_403);
+				RESPONSE_MESSAGE_FAILURE);
 	}
 
-	@Test(groups = { "cors" })
-	public void negativePost_Test() throws IOException {
-		Assert.assertEquals(testAllowedOrigin(home, "POST", nodeXpath),
-				RESPONSE_MESSAGE_501);
-	}
-
-	@Test(groups = { "cors" })
-	public void negativePut_Test() throws IOException {
-		Assert.assertEquals(testAllowedOrigin(home, "PUT", nodeXpath),
-				RESPONSE_MESSAGE_403);
-	}
-
-	@Test(groups = { "cors" })
-	public void negativeDelete_Test() throws IOException {
-		Assert.assertEquals(testAllowedOrigin(home, "DELETE", nodeXpath),
-				RESPONSE_MESSAGE_403);
-	}
-
-	@Test(groups = { "cors" })
-	public void negativeHead_Test() throws IOException {
-		Assert.assertEquals(testAllowedOrigin(home, "HEAD", nodeXpath),
-				RESPONSE_MESSAGE_403);
-	}
+	// @Test(groups = { "cors" })
+	// public void negativePost_Test() throws IOException {
+	// Assert.assertEquals(testAllowedOrigin(home, "POST", nodeXpath),
+	// RESPONSE_MESSAGE_501);
+	// }
+	//
+	// @Test(groups = { "cors" })
+	// public void negativePut_Test() throws IOException {
+	// Assert.assertEquals(testAllowedOrigin(home, "PUT", nodeXpath),
+	// RESPONSE_MESSAGE_403);
+	// }
+	//
+	// @Test(groups = { "cors" })
+	// public void negativeDelete_Test() throws IOException {
+	// Assert.assertEquals(testAllowedOrigin(home, "DELETE", nodeXpath),
+	// RESPONSE_MESSAGE_403);
+	// }
+	//
+	// @Test(groups = { "cors" })
+	// public void negativeHead_Test() throws IOException {
+	// Assert.assertEquals(testAllowedOrigin(home, "HEAD", nodeXpath),
+	// RESPONSE_MESSAGE_403);
+	// }
 
 	public String testAllowedOrigin(String allowedOrigin, String requestType,
 			String nodeXpath) throws IOException {
@@ -76,16 +78,18 @@ public class Cors_01_Negative_Test extends TestInitializeWebDriver {
 		int maxAgeSeconds = 1;
 		AllowedMethods[] allowedMethods = new AllowedMethods[] { S3Utils
 				.getAllowedMethod(requestType) };
-		String[] allowedOrigins = new String[] { "*" };
-		String[] allowedHeaders = new String[] { null };
-		String[] exposedHeaders = new String[] { null };
+		String[] allowedOrigins = new String[] { "" };
+		String[] allowedHeaders = new String[] { "*" };
+		String[] exposedHeaders = new String[] { "*" };
 
 		s3Utils.setCorsConfiguration(ruleId, maxAgeSeconds, allowedMethods,
 				allowedOrigins, allowedHeaders, exposedHeaders);
 		String testHtm = S3Utils.creteCorsHtml(path, corsJsUri, requestType,
 				crossOriginUrl, nodeXpath);
 
+		s3Utils.putTextFile(TEST_FILE, "", bucketName);
 		s3Utils.putTextFile(INDEX_FILE, testHtm, bucketName);
+		s3Utils.putTextFile(corsJs, FileUtils.read(corsJsPath), bucketName);
 
 		try {
 			Thread.sleep(1000);

@@ -9,8 +9,11 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
-import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.http.Header;
 import org.apache.log4j.Logger;
@@ -91,8 +94,7 @@ public class Common {
 		int sizeOfTheShortestList = Math.min(aList.size(), bList.size());
 
 		for (int i = 0; i < sizeOfTheShortestList; i++) {
-			if (!((Bucket) bList.get(i)).getName().equals(
-					((Bucket) aList.get(i)).getName())) {
+			if (!bList.get(i).getName().equals(aList.get(i).getName())) {
 				return false;
 			}
 		}
@@ -118,15 +120,98 @@ public class Common {
 			return false;
 		}
 
-		if (!list.retainAll(list_2) && !list_2.retainAll(list)) {
-			return true;
+		if (!list.retainAll(list_2) && list_2.retainAll(list)) {
+			return false;
 		}
 
-		if (list.retainAll(list_2) && list_2.retainAll(list)) {
+		if (list.retainAll(list_2) && !list_2.retainAll(list)) {
 			return true;
 		}
 
 		return true;
+	}
+
+	public static Map<String, Object> compareMaps(Map<String, Object> map1,
+			Map<String, Object> map2) {
+
+		Map<String, Object> resultMap1 = getMapInconsistencies(map1, map2);
+		Map<String, Object> resultMap2 = getMapInconsistencies(map2, map1);
+
+		Map<String, Object> mergedMap = mergeMaps(resultMap1, resultMap2);
+
+		return mergedMap;
+	}
+
+	public static void printMap(Map<String, Object> map) {
+		Iterator<Entry<String, Object>> mapIterator = map.entrySet().iterator();
+
+		while (mapIterator.hasNext()) {
+			Entry<String, Object> mapEntry1 = mapIterator.next();
+
+			String key1 = mapEntry1.getKey();
+			Object[] value1 = (Object[]) mapEntry1.getValue();
+
+			System.out.println("\n key: '" + key1 + "' value: '"
+					+ value1[0].toString() + "' : '" + value1[1].toString()
+					+ "'");
+		}
+	}
+
+	public static Map<String, Object> mergeMaps(Map<String, Object> map1,
+			Map<String, Object> map2) {
+
+		Iterator<Entry<String, Object>> mapIterator1 = map1.entrySet()
+				.iterator();
+
+		while (mapIterator1.hasNext()) {
+			Entry<String, Object> mapEntry1 = mapIterator1.next();
+			String key1 = mapEntry1.getKey();
+			Object value1 = mapEntry1.getValue();
+			map2.put(key1, value1);
+		}
+
+		return map2;
+
+	}
+
+	public static Map<String, Object> getMapInconsistencies(
+			Map<String, Object> map1, Map<String, Object> map2) {
+
+		Iterator<Entry<String, Object>> mapIterator1 = map1.entrySet()
+				.iterator();
+
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+
+		while (mapIterator1.hasNext()) {
+			Entry<String, Object> mapEntry1 = mapIterator1.next();
+			String key1 = mapEntry1.getKey();
+			Object value1 = mapEntry1.getValue();
+			Object value2 = getMapValue(map2, key1);
+
+			if (!value1.equals(value2)) {
+				Object[] values = { value1, value2 };
+
+				resultMap.put(key1, values);
+			}
+
+		}
+
+		return resultMap;
+
+	}
+
+	public static Object getMapValue(Map<String, Object> map, String key) {
+		Iterator<Entry<String, Object>> mapIterator = map.entrySet().iterator();
+
+		while (mapIterator.hasNext()) {
+			Entry<String, Object> mapEntry = mapIterator.next();
+			if (mapEntry.getKey().equals(key)) {
+				return mapEntry.getValue();
+			}
+
+		}
+
+		return "";
 	}
 
 	public static boolean compareHeaders(Header[] aHeader, Header[] bHeader) {
@@ -143,4 +228,13 @@ public class Common {
 		return true;
 
 	}
+
+	public static void waitSec(int sec) {
+		try {
+			Thread.sleep(sec * 1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
 }
