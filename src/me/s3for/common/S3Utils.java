@@ -32,6 +32,7 @@ import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
@@ -207,18 +208,48 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		}
 	}
 
-	public void put(String objectName) {
-		AccessControlList acl = new AccessControlList();
+	public File put(String objectName) {
 
-		acl.grantPermission(GroupGrantee.AllUsers, Permission.Read);
+		File file = null;
+
+		AccessControlList acl = createAccessControlList(Permission.Read);
 
 		try {
-			s3client.putObject(new PutObjectRequest(bucketName, objectName,
-					createSampleFile()).withAccessControlList(acl));
-			// s3client.setObjectAcl(bucketName, objectName, acl);
+			file = createSampleFile();
+			PutObjectRequest putObjectRequest = new PutObjectRequest(
+					bucketName, objectName, file);
+			PutObjectResult putObjectResult = s3client
+					.putObject(putObjectRequest.withAccessControlList(acl));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+		return file;
+	}
+
+	public PutObjectResult put(String objectName, File file) {
+
+		AccessControlList acl = createAccessControlList(Permission.Read);
+		PutObjectResult putObjectResult = null;
+
+		try {
+			PutObjectRequest putObjectRequest = new PutObjectRequest(
+					bucketName, objectName, file);
+			putObjectResult = s3client
+					.putObject(putObjectRequest.withAccessControlList(acl));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return putObjectResult;
+	}
+
+	public static AccessControlList createAccessControlList(
+			Permission permission) {
+		AccessControlList acl = new AccessControlList();
+		acl.grantPermission(GroupGrantee.AllUsers, permission);
+
+		return acl;
 	}
 
 	public S3Object get(String objectName) {
@@ -309,17 +340,24 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	 * 
 	 * @throws IOException
 	 */
-	private static File createSampleFile() throws IOException {
-		File file = File.createTempFile("aws-java-sdk-", ".txt");
-		file.deleteOnExit();
+	public static File createSampleFile() {
 
-		Writer writer = new OutputStreamWriter(new FileOutputStream(file));
-		writer.write("abcdefghijklmnopqrstuvwxyz\n");
-		writer.write("01234567890112345678901234\n");
-		writer.write("!@#$%^&*()-=[]**;':',.<>/?\n");
-		writer.write("01234567890112345678901234\n");
-		writer.write("abcdefghijklmnopqrstuvwxyz\n");
-		writer.close();
+		File file = null;
+		try {
+
+			file = File.createTempFile("aws-java-sdk-", ".txt");
+			file.deleteOnExit();
+
+			Writer writer = new OutputStreamWriter(new FileOutputStream(file));
+			writer.write("abcdefghijklmnopqrstuvwxyz\n");
+			writer.write("01234567890112345678901234\n");
+			writer.write("!@#$%^&*()-=[]**;':',.<>/?\n");
+			writer.write("01234567890112345678901234\n");
+			writer.write("abcdefghijklmnopqrstuvwxyz\n");
+			writer.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
 		return file;
 	}

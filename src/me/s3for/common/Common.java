@@ -9,7 +9,10 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.http.Header;
 import org.apache.log4j.Logger;
@@ -126,6 +129,43 @@ public class Common {
 		}
 
 		return true;
+	}
+
+	//
+	// public static boolean compareMaps(Map<String,Object> m1,
+	// Map<String,Object> m2) {
+	// if (m1.size() != m2.size())
+	// return false;
+	//
+	// Iterator<Entry<String, Object>> holyDayiterator =
+	// m1.entrySet().iterator();
+	//
+	// while (holyDayiterator.hasNext()) {
+	// Entry<String, Object> holiDayEntry = holyDayiterator.next();
+	// if(!m1.containsValue((holiDayEntry.getValue()))){
+	// System.out.println("works perfect");
+	// }
+	//
+	// foreach (K key: m1.keySet())
+	// if (!m1.get(key).equals(m2.get(key)))
+	// return false;
+	// return true;
+	// }
+	// }
+
+	public static Object getMapValue(Map<String, Object> m1, String key) {
+		Iterator<Entry<String, Object>> holyDayiterator = m1.entrySet()
+				.iterator();
+
+		while (holyDayiterator.hasNext()) {
+			Entry<String, Object> holiDayEntry = holyDayiterator.next();
+			if (holiDayEntry.getKey().equals(key)) {
+				return holiDayEntry.getValue();
+			}
+
+		}
+
+		return "";
 	}
 
 	public static boolean compareHeaders(Header[] aHeader, Header[] bHeader) {
