@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
 import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
@@ -27,18 +29,24 @@ import com.amazonaws.services.s3.model.BucketCrossOriginConfiguration;
 import com.amazonaws.services.s3.model.CORSRule;
 import com.amazonaws.services.s3.model.CORSRule.AllowedMethods;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
+import com.amazonaws.services.s3.model.CompleteMultipartUploadResult;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.CopyObjectResult;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.GroupGrantee;
+import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
+import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.UploadPartRequest;
 
 public class S3Utils extends Common implements S3UtilsInterface {
 
@@ -289,6 +297,57 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		} catch (AmazonClientException ace) {
 			printAmazonClientException(ace);
 		}
+	}
+
+	public CompleteMultipartUploadResult multipartUpload(String keyName,
+			String filePath) {
+
+		CompleteMultipartUploadResult completeMultipartUploadResult = null;
+
+		List<PartETag> partETags = new ArrayList<PartETag>();
+
+		InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest(
+				bucketName, keyName);
+		InitiateMultipartUploadResult initResponse = s3client
+				.initiateMultipartUpload(initRequest);
+
+		File file = new File(filePath);
+		long contentLength = file.length();
+		long partSize = 5 * 1024 * 1024; // Set part size to 5 MB.
+
+		try {
+			// Step 2: Upload parts.
+			long filePosition = 0;
+			for (int i = 1; filePosition < contentLength; i++) {
+				// Last part can be less than 5 MB. Adjust part size.
+				partSize = Math.min(partSize, (contentLength - filePosition));
+
+				// Create request to upload a part.
+				UploadPartRequest uploadRequest = new UploadPartRequest()
+						.withBucketName(bucketName).withKey(keyName)
+						.withUploadId(initResponse.getUploadId())
+						.withPartNumber(i).withFileOffset(filePosition)
+						.withFile(file).withPartSize(partSize);
+
+				// Upload part and add response to our list.
+				partETags.add(s3client.uploadPart(uploadRequest).getPartETag());
+
+				filePosition += partSize;
+			}
+
+			// Step 3: complete.
+			CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest(
+					bucketName, keyName, initResponse.getUploadId(), partETags);
+
+			completeMultipartUploadResult = s3client
+					.completeMultipartUpload(compRequest);
+		} catch (Exception e) {
+			s3client.abortMultipartUpload(new AbortMultipartUploadRequest(
+					bucketName, keyName, initResponse.getUploadId()));
+		}
+
+		return completeMultipartUploadResult;
+
 	}
 
 	public static AccessControlList createAccessControlList(

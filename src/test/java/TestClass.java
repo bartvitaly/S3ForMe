@@ -7,9 +7,8 @@ public class TestClass {
 	@Test
 	public void method_Test() {
 
-<<<<<<< HEAD
-		System.out.println(9/2);
-=======
+		System.out.println(9 / 2);
+
 		int[] unsortedArray = { 46, 1, 4, 45, 2, 0 };
 		int[] sortedArray = bubbleSort(unsortedArray);
 
@@ -32,7 +31,6 @@ public class TestClass {
 			}
 		}
 		return array;
->>>>>>> a36fa359572e9b2037f95465e9148fcfc1ef6d0d
 
 	}
 
@@ -61,11 +59,7 @@ public class TestClass {
 
 		return arrayNew;
 	}
-<<<<<<< HEAD
-	
-=======
 
->>>>>>> a36fa359572e9b2037f95465e9148fcfc1ef6d0d
 	String[] delete(String[] array, String item) {
 
 		int arrayLength = array.length;
