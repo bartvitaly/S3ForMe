@@ -21,11 +21,15 @@ import com.amazonaws.AmazonServiceException;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AccessControlList;
+import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.BucketCrossOriginConfiguration;
 import com.amazonaws.services.s3.model.CORSRule;
 import com.amazonaws.services.s3.model.CORSRule.AllowedMethods;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.GroupGrantee;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
@@ -42,6 +46,8 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	final static String secret = PropertiesUtils
 			.getProperty("AWSSecretAccessKeyID");
 	final static String server = PropertiesUtils.getProperty("AWSserver");
+
+	final static String NO_SUCH_KEY = "NoSuchKey";
 
 	AmazonS3Client s3client;
 	Bucket bucket;
@@ -203,7 +209,12 @@ public class S3Utils extends Common implements S3UtilsInterface {
 			s3client.putObject(new PutObjectRequest(bucketName, objectName,
 					FileUtils.create(objectName, text))
 					.withCannedAcl(CannedAccessControlList.PublicRead));
-		} catch (Exception e) {
+		} catch (AmazonServiceException ase) {
+			printAmazonServiceException(ase);
+		} catch (AmazonClientException ace) {
+			printAmazonClientException(ace);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -219,8 +230,10 @@ public class S3Utils extends Common implements S3UtilsInterface {
 			PutObjectRequest putObjectRequest = new PutObjectRequest(
 					bucketName, objectName, file);
 			s3client.putObject(putObjectRequest.withAccessControlList(acl));
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (AmazonServiceException ase) {
+			printAmazonServiceException(ase);
+		} catch (AmazonClientException ace) {
+			printAmazonClientException(ace);
 		}
 
 		return file;
@@ -236,11 +249,46 @@ public class S3Utils extends Common implements S3UtilsInterface {
 					bucketName, objectName, file);
 			putObjectResult = s3client.putObject(putObjectRequest
 					.withAccessControlList(acl));
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (AmazonServiceException ase) {
+			printAmazonServiceException(ase);
+		} catch (AmazonClientException ace) {
+			printAmazonClientException(ace);
 		}
 
 		return putObjectResult;
+	}
+
+	// copy object is made for the same bucket
+	public CopyObjectResult copyObject(String objectName, String copyObjectName) {
+
+		AccessControlList acl = createAccessControlList(Permission.Read);
+		CopyObjectResult copyObjectResult = null;
+
+		try {
+			CopyObjectRequest copyObjectRequest = new CopyObjectRequest(
+					bucketName, objectName, bucketName, copyObjectName);
+			copyObjectResult = s3client.copyObject(copyObjectRequest
+					.withAccessControlList(acl));
+		} catch (AmazonServiceException ase) {
+			printAmazonServiceException(ase);
+		} catch (AmazonClientException ace) {
+			printAmazonClientException(ace);
+		}
+
+		return copyObjectResult;
+	}
+
+	public void deleteObject(String objectName) {
+
+		try {
+			DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(
+					bucketName, objectName);
+			s3client.deleteObject(deleteObjectRequest);
+		} catch (AmazonServiceException ase) {
+			printAmazonServiceException(ase);
+		} catch (AmazonClientException ace) {
+			printAmazonClientException(ace);
+		}
 	}
 
 	public static AccessControlList createAccessControlList(
@@ -251,10 +299,21 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		return acl;
 	}
 
-	public S3Object get(String objectName) {
+	public S3Object get(String objectName) throws Exception {
 		System.out.println("Downloading an object");
-		S3Object object = s3client.getObject(new GetObjectRequest(bucket
-				.getName(), objectName));
+		S3Object object = null;
+		try {
+			object = s3client.getObject(new GetObjectRequest(bucket.getName(),
+					objectName));
+		} catch (AmazonS3Exception e) {
+			if (!e.getMessage().contains(NO_SUCH_KEY)) {
+				throw new Exception(e);
+			}
+		} catch (AmazonServiceException ase) {
+			printAmazonServiceException(ase);
+		} catch (AmazonClientException ace) {
+			printAmazonClientException(ace);
+		}
 
 		return object;
 	}
@@ -464,22 +523,18 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		System.out.println();
 	}
 
-	@Override
-	public void putFile(String bucket, String filePath) {
-		// TODO Auto-generated method stub
-
+	void printAmazonServiceException(AmazonServiceException ase) {
+		System.out.println("Caught an AmazonServiceException.");
+		System.out.println("Error Message:    " + ase.getMessage());
+		System.out.println("HTTP Status Code: " + ase.getStatusCode());
+		System.out.println("AWS Error Code:   " + ase.getErrorCode());
+		System.out.println("Error Type:       " + ase.getErrorType());
+		System.out.println("Request ID:       " + ase.getRequestId());
 	}
 
-	@Override
-	public void putFolder(String bucket, String filePath) {
-		// TODO Auto-generated method stub
-
+	void printAmazonClientException(AmazonClientException ace) {
+		System.out.println("Caught an AmazonClientException.");
+		System.out.println("Error Message: " + ace.getMessage());
 	}
 
-	// @Override
-	// public void createBucket(String bucket) {
-	// System.out.println(s3client.listBuckets());
-	// s3client.createBucket(bucket);
-	// System.out.println(s3client.listBuckets());
-	// }
 }

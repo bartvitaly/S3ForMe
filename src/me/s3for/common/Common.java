@@ -142,6 +142,19 @@ public class Common {
 		return mergedMap;
 	}
 
+	public static Map<String, Object> compareMaps(Map<String, Object> map1,
+			Map<String, Object> map2, String[] avoidKeys) {
+
+		Map<String, Object> resultMap1 = getMapInconsistencies(map1, map2,
+				avoidKeys);
+		Map<String, Object> resultMap2 = getMapInconsistencies(map2, map1,
+				avoidKeys);
+
+		Map<String, Object> mergedMap = mergeMaps(resultMap1, resultMap2);
+
+		return mergedMap;
+	}
+
 	public static void printMap(Map<String, Object> map) {
 		Iterator<Entry<String, Object>> mapIterator = map.entrySet().iterator();
 
@@ -200,6 +213,37 @@ public class Common {
 
 	}
 
+	public static Map<String, Object> getMapInconsistencies(
+			Map<String, Object> map1, Map<String, Object> map2,
+			String[] avoidKeys) {
+
+		Iterator<Entry<String, Object>> mapIterator1 = map1.entrySet()
+				.iterator();
+
+		Map<String, Object> resultMap = new HashMap<String, Object>();
+
+		while (mapIterator1.hasNext()) {
+			Entry<String, Object> mapEntry1 = mapIterator1.next();
+			String key1 = mapEntry1.getKey();
+			Object value1 = mapEntry1.getValue();
+			Object value2 = getMapValue(map2, key1);
+
+			if (isObjectInArray(avoidKeys, key1)) {
+				continue;
+			}
+
+			if (!value1.equals(value2)) {
+				Object[] values = { value1, value2 };
+
+				resultMap.put(key1, values);
+			}
+
+		}
+
+		return resultMap;
+
+	}
+
 	public static Object getMapValue(Map<String, Object> map, String key) {
 		Iterator<Entry<String, Object>> mapIterator = map.entrySet().iterator();
 
@@ -227,6 +271,15 @@ public class Common {
 
 		return true;
 
+	}
+
+	public static boolean isObjectInArray(Object[] objectArray, Object o) {
+		for (int i = 0; i < objectArray.length; i++) {
+			if (objectArray[i].equals(o)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static void waitSec(int sec) {

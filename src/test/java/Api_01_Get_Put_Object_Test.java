@@ -21,6 +21,7 @@ public class Api_01_Get_Put_Object_Test extends TestInitialize {
 	S3Utils s3Utils, s3UtilsAws;
 	String fileName = "file.txt";
 	File file, fileAws;
+	String[] avoidKeys = { "Last-Modified" };
 
 	/**
 	 * @desc The code to be run before each test
@@ -55,7 +56,7 @@ public class Api_01_Get_Put_Object_Test extends TestInitialize {
 	 */
 
 	@Test(groups = { "api" })
-	public void bucketWriteTest() throws IOException {
+	public void bucketWriteTest() throws Exception {
 
 		// Get S3 objects
 		S3Object s3Object = s3Utils.get(fileName);
@@ -76,19 +77,14 @@ public class Api_01_Get_Put_Object_Test extends TestInitialize {
 
 		Assert.assertEquals(content, contentAws);
 
-		String eTag = (String) Common.getMapValue(
-				s3ObjectMetadata.getRawMetadata(), "ETag");
-		String eTagAws = (String) Common.getMapValue(
-				s3ObjectMetadataAws.getRawMetadata(), "ETag");
-
-		Assert.assertEquals(eTag, eTagAws);
-
 		Map<String, Object> map = Common.compareMaps(
 				s3ObjectMetadata.getRawMetadata(),
-				s3ObjectMetadataAws.getRawMetadata());
+				s3ObjectMetadataAws.getRawMetadata(), avoidKeys);
 
 		System.out.println("Metadata: S3 vs AWS");
 		Common.printMap(map);
+
+		Assert.assertTrue(map.size() == 0, "Objects' metadata are not the same");
 
 	}
 }
