@@ -24,7 +24,6 @@ public class Api_02_PutCopy_Object_Test extends TestInitialize {
 	String fileNameNew = "file_new.txt";
 	File file, fileAws;
 	PutObjectResult putObjectResult, putObjectResultAws;
-	String[] avoidKeys = { "Last-Modified", "Keep-Alive" };
 
 	/**
 	 * @desc The code to be run before each test

@@ -46,6 +46,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import com.amazonaws.services.s3.model.SetBucketAclRequest;
 import com.amazonaws.services.s3.model.UploadPartRequest;
 
 public class S3Utils extends Common implements S3UtilsInterface {
@@ -199,6 +200,14 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		this.bucketName = bucketName;
 	}
 
+	public void setBucketAcl(Permission permission) {
+		AccessControlList acl = createAccessControlList(permission);
+
+		SetBucketAclRequest setBucketAclRequest = new SetBucketAclRequest(
+				bucketName, acl);
+		s3client.setBucketAcl(setBucketAclRequest);
+	}
+
 	public Bucket getBucket(String bucketName) {
 		List<Bucket> bucketList = getBucketList();
 
@@ -209,6 +218,11 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		}
 
 		return null;
+	}
+
+	public void setObjectAcl(String objectName, Permission permission) {
+		AccessControlList acl = createAccessControlList(permission);
+		s3client.setObjectAcl(bucketName, objectName, acl);
 	}
 
 	public void putTextFile(String objectName, String text, String bucketName) {

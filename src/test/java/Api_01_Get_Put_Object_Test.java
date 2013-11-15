@@ -21,7 +21,6 @@ public class Api_01_Get_Put_Object_Test extends TestInitialize {
 	S3Utils s3Utils, s3UtilsAws;
 	String fileName = "file.txt";
 	File file, fileAws;
-	String[] avoidKeys = { "Last-Modified" };
 
 	/**
 	 * @desc The code to be run before each test
