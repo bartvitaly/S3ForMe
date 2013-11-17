@@ -23,7 +23,7 @@ public class Api_08_MultipartUpload_Test extends TestInitialize {
 
 	S3Utils s3Utils, s3UtilsAws;
 	CompleteMultipartUploadResult cMultiUpResult, cMultiUpResultAws;
-	String fileName = "file.pdf";
+	String fileName = "test_1mb.file";
 	String filePath = FileUtils.getRootPath() + "\\static\\" + fileName;
 	int partSizeMb = 1;
 	File file, fileAws;
