@@ -43,7 +43,7 @@ public class Api_03_Delete_Object_Test extends TestInitialize {
 	 */
 
 	@Test(groups = { "api" })
-	public void bucketWriteTest() throws Exception {
+	public void bucketDeleteTest() throws Exception {
 
 		// Delete objects
 		s3Utils.deleteObject(fileName);

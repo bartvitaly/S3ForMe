@@ -53,7 +53,7 @@ public class Api_02_PutCopy_Object_Test extends TestInitialize {
 	 */
 
 	@Test(groups = { "api" })
-	public void bucketWriteTest() throws Exception {
+	public void bucketPutCopyTest() throws Exception {
 
 		// Copy objects
 		CopyObjectResult copyObjectResult = s3Utils.copyObject(fileName,

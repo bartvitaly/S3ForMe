@@ -16,6 +16,7 @@ import java.util.Map;
 import me.s3for.interfaces.S3UtilsInterface;
 
 import org.apache.http.Header;
+import org.apache.log4j.Level;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -66,11 +67,13 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	public S3Utils(String key, String secret, String server) {
 		s3client = new AmazonS3Client(new BasicAWSCredentials(key, secret));
 		s3client.setEndpoint(server);
+		logger.setLevel(Level.ERROR);
 	}
 
 	public S3Utils() {
 		s3client = new AmazonS3Client(new BasicAWSCredentials(key, secret));
 		s3client.setEndpoint(server);
+		logger.setLevel(Level.ERROR);
 	}
 
 	public S3Utils(boolean authorize, String server) {
@@ -313,21 +316,21 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		}
 	}
 
-	public CompleteMultipartUploadResult multipartUpload(String keyName,
-			String filePath) {
+	public CompleteMultipartUploadResult multipartUpload(String objectName,
+			String filePath, int partSizeMb) {
 
 		CompleteMultipartUploadResult completeMultipartUploadResult = null;
 
 		List<PartETag> partETags = new ArrayList<PartETag>();
 
 		InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest(
-				bucketName, keyName);
+				bucketName, objectName);
 		InitiateMultipartUploadResult initResponse = s3client
 				.initiateMultipartUpload(initRequest);
 
 		File file = new File(filePath);
 		long contentLength = file.length();
-		long partSize = 5 * 1024 * 1024; // Set part size to 5 MB.
+		long partSize = partSizeMb * 1024 * 1024; // Set part size to 5 MB.
 
 		try {
 			// Step 2: Upload parts.
@@ -338,7 +341,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 				// Create request to upload a part.
 				UploadPartRequest uploadRequest = new UploadPartRequest()
-						.withBucketName(bucketName).withKey(keyName)
+						.withBucketName(bucketName).withKey(objectName)
 						.withUploadId(initResponse.getUploadId())
 						.withPartNumber(i).withFileOffset(filePosition)
 						.withFile(file).withPartSize(partSize);
@@ -351,13 +354,14 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 			// Step 3: complete.
 			CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest(
-					bucketName, keyName, initResponse.getUploadId(), partETags);
+					bucketName, objectName, initResponse.getUploadId(),
+					partETags);
 
 			completeMultipartUploadResult = s3client
 					.completeMultipartUpload(compRequest);
 		} catch (Exception e) {
 			s3client.abortMultipartUpload(new AbortMultipartUploadRequest(
-					bucketName, keyName, initResponse.getUploadId()));
+					bucketName, objectName, initResponse.getUploadId()));
 		}
 
 		return completeMultipartUploadResult;
