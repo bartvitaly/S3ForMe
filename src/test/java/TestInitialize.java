@@ -38,6 +38,9 @@ public class TestInitialize extends WebDriverCommon {
 	public static String[] avoidKeys = { "Last-Modified", "Keep-Alive",
 			"Accept-Ranges", "Connection", "Vary" };
 
+	public static String[] avoidKeysMultipart = { "ETag", "Last-Modified",
+			"Keep-Alive", "Accept-Ranges", "Connection", "Vary" };
+
 	public static Logger logger = Logger
 			.getLogger(TestInitializeWebDriver.class);
 

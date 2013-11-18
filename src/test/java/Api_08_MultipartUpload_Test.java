@@ -7,25 +7,22 @@ import java.util.Map;
 import me.s3for.common.Common;
 import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
-import me.s3for.common.StringUtils;
 
 import org.apache.log4j.Level;
 import org.testng.Assert;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
 
-import com.amazonaws.services.s3.model.CompleteMultipartUploadResult;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.S3Object;
 
 public class Api_08_MultipartUpload_Test extends TestInitialize {
 
 	S3Utils s3Utils, s3UtilsAws;
-	CompleteMultipartUploadResult cMultiUpResult, cMultiUpResultAws;
-	String fileName = "test_1mb.file";
+	Object[] cMultiUpResult, cMultiUpResultAws;
+	String fileName = "test_5mb.file";
 	String filePath = FileUtils.getRootPath() + "\\static\\" + fileName;
-	int partSizeMb = 1;
+	int partSizeMb = 5;
 	File file, fileAws;
 
 	/**
@@ -45,13 +42,12 @@ public class Api_08_MultipartUpload_Test extends TestInitialize {
 		s3UtilsAws.setBacket(bucketNameAws);
 
 		// put a multipart file into a basket
-		// cMultiUpResult = s3Utils
-		// .multipartUpload(fileName, filePath, partSizeMb);
-		// cMultiUpResultAws = s3UtilsAws.multipartUpload(fileName, filePath,
-		// partSizeMb);
+		cMultiUpResultAws = s3UtilsAws.multipartUpload(fileName, filePath,
+				partSizeMb);
+		cMultiUpResult = s3Utils
+				.multipartUpload(fileName, filePath, partSizeMb);
 
-		// s3Utils.setObjectAcl(fileName, Permission.Read);
-		// s3UtilsAws.setObjectAcl(fileName, Permission.Read);
+		file = new File(filePath);
 
 	}
 
@@ -65,8 +61,8 @@ public class Api_08_MultipartUpload_Test extends TestInitialize {
 	public void multipartUploadTest() throws Exception {
 
 		// Get S3 objects
-		S3Object s3Object = s3Utils.get(fileName);
 		S3Object s3ObjectAws = s3UtilsAws.get(fileName);
+		S3Object s3Object = s3Utils.get(fileName);
 
 		ObjectMetadata s3ObjectMetadata = s3Object.getObjectMetadata();
 		ObjectMetadata s3ObjectMetadataAws = s3ObjectAws.getObjectMetadata();
@@ -75,17 +71,12 @@ public class Api_08_MultipartUpload_Test extends TestInitialize {
 		Assert.assertEquals(file.length(),
 				s3ObjectMetadataAws.getContentLength());
 
-		// Get file content
-		String content = StringUtils.inputStreamToString(s3Object
-				.getObjectContent());
-		String contentAws = StringUtils.inputStreamToString(s3ObjectAws
-				.getObjectContent());
-
-		Assert.assertEquals(content, contentAws);
+		Assert.assertEquals(s3ObjectMetadata.getContentMD5(),
+				s3ObjectMetadataAws.getContentMD5());
 
 		Map<String, Object> map = Common.compareMaps(
 				s3ObjectMetadata.getRawMetadata(),
-				s3ObjectMetadataAws.getRawMetadata(), avoidKeys);
+				s3ObjectMetadataAws.getRawMetadata(), avoidKeysMultipart);
 
 		System.out.println("Metadata: S3 vs AWS");
 		Common.printMap(map);

@@ -316,17 +316,19 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		}
 	}
 
-	public CompleteMultipartUploadResult multipartUpload(String objectName,
-			String filePath, int partSizeMb) {
+	public Object[] multipartUpload(String objectName, String filePath,
+			int partSizeMb) {
 
 		CompleteMultipartUploadResult completeMultipartUploadResult = null;
+		AccessControlList acl = createAccessControlList(Permission.Read);
 
 		List<PartETag> partETags = new ArrayList<PartETag>();
 
 		InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest(
 				bucketName, objectName);
 		InitiateMultipartUploadResult initResponse = s3client
-				.initiateMultipartUpload(initRequest);
+				.initiateMultipartUpload(initRequest.withCannedACL(CannedAccessControlList.PublicRead));
+		String uploadId = initResponse.getUploadId();
 
 		File file = new File(filePath);
 		long contentLength = file.length();
@@ -342,9 +344,9 @@ public class S3Utils extends Common implements S3UtilsInterface {
 				// Create request to upload a part.
 				UploadPartRequest uploadRequest = new UploadPartRequest()
 						.withBucketName(bucketName).withKey(objectName)
-						.withUploadId(initResponse.getUploadId())
-						.withPartNumber(i).withFileOffset(filePosition)
-						.withFile(file).withPartSize(partSize);
+						.withUploadId(uploadId).withPartNumber(i)
+						.withFileOffset(filePosition).withFile(file)
+						.withPartSize(partSize);
 
 				// Upload part and add response to our list.
 				partETags.add(s3client.uploadPart(uploadRequest).getPartETag());
@@ -354,17 +356,16 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 			// Step 3: complete.
 			CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest(
-					bucketName, objectName, initResponse.getUploadId(),
-					partETags);
+					bucketName, objectName, uploadId, partETags);
 
 			completeMultipartUploadResult = s3client
 					.completeMultipartUpload(compRequest);
 		} catch (Exception e) {
 			s3client.abortMultipartUpload(new AbortMultipartUploadRequest(
-					bucketName, objectName, initResponse.getUploadId()));
+					bucketName, objectName, uploadId));
 		}
 
-		return completeMultipartUploadResult;
+		return new Object[] { completeMultipartUploadResult, uploadId };
 
 	}
 
@@ -375,7 +376,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 		return acl;
 	}
-
+	
 	public S3Object get(String objectName) throws Exception {
 		System.out.println("Downloading an object");
 		S3Object object = null;
