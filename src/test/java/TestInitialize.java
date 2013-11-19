@@ -5,6 +5,7 @@ import me.s3for.common.PropertiesUtils;
 import me.s3for.common.WebDriverCommon;
 
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.testng.annotations.BeforeSuite;
 
@@ -50,6 +51,7 @@ public class TestInitialize extends WebDriverCommon {
 	@BeforeSuite(groups = { "cors" })
 	public void initLogger() {
 		BasicConfigurator.configure();
+		Logger.getRootLogger().setLevel(Level.ERROR);
 		// DOMConfigurator.configure("log4j.xml");
 	}
 

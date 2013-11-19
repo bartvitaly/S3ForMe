@@ -2,15 +2,18 @@ package me.s3for.common;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
@@ -89,6 +92,21 @@ public class FileUtils {
 		return md5;
 	}
 
+	public static String getMD5New(String fileName) throws Exception {
+		StringBuffer hexString = new StringBuffer();
+		MessageDigest md = MessageDigest.getInstance("MD5");
+		byte[] hash = md.digest();
+
+		for (int i = 0; i < hash.length; i++) {
+			if ((0xff & hash[i]) < 0x10) {
+				hexString.append("0" + Integer.toHexString((0xFF & hash[i])));
+			} else {
+				hexString.append(Integer.toHexString(0xFF & hash[i]));
+			}
+		}
+		return hexString.toString();
+	}
+
 	public static byte[] getPartBytes(String filePath) {
 		Path path = Paths.get(filePath);
 		byte[] data;
@@ -107,7 +125,7 @@ public class FileUtils {
 			long position, long size) {
 		Path path = Paths.get(filePath);
 
-		write(filePathNew, "");
+		// write(filePathNew, "");
 
 		byte[] bytes;
 		byte[] bytesNew = new byte[(int) size];

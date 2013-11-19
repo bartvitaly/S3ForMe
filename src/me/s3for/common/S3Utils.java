@@ -389,7 +389,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 				.withBucketName(bucketName).withKey(objectName)
 				.withUploadId(uploadId).withPartNumber(partNumber)
 				.withFileOffset(filePosition).withFile(file)
-				.withMD5Digest(md5Digest);
+				.withPartSize(partSize).withMD5Digest(md5Digest);
 
 		return uploadRequest;
 
@@ -401,7 +401,8 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		UploadPartRequest uploadRequest = new UploadPartRequest()
 				.withBucketName(bucketName).withKey(objectName)
 				.withUploadId(uploadId).withPartNumber(partNumber)
-				.withFileOffset(filePosition).withFile(file);
+				.withPartSize(partSize).withFileOffset(filePosition)
+				.withFile(file);
 
 		return uploadRequest;
 
