@@ -1,6 +1,5 @@
 package test.java;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
@@ -19,11 +18,9 @@ import com.amazonaws.services.s3.model.S3Object;
 public class Api_08_MultipartUpload_Test extends TestInitialize {
 
 	S3Utils s3Utils, s3UtilsAws;
-	Object[] cMultiUpResult, cMultiUpResultAws;
 	String fileName = "test_5mb.file";
 	String filePath = FileUtils.getRootPath() + "\\static\\" + fileName;
 	int partSizeMb = 5;
-	File file, fileAws;
 
 	/**
 	 * @desc The code to be run before each test
@@ -42,17 +39,13 @@ public class Api_08_MultipartUpload_Test extends TestInitialize {
 		s3UtilsAws.setBacket(bucketNameAws);
 
 		// put a multipart file into a basket
-		cMultiUpResultAws = s3UtilsAws.multipartUpload(fileName, filePath,
-				partSizeMb);
-		cMultiUpResult = s3Utils
-				.multipartUpload(fileName, filePath, partSizeMb);
-
-		file = new File(filePath);
+		s3Utils.multipartUpload(fileName, filePath, partSizeMb);
+		s3UtilsAws.multipartUpload(fileName, filePath, partSizeMb);
 
 	}
 
 	/**
-	 * @desc Check ability to delete object from a bucket
+	 * @desc Check ability to upload object into a bucket with multiple parts
 	 * 
 	 * @throws IOException
 	 */
@@ -61,18 +54,16 @@ public class Api_08_MultipartUpload_Test extends TestInitialize {
 	public void multipartUploadTest() throws Exception {
 
 		// Get S3 objects
-		S3Object s3ObjectAws = s3UtilsAws.get(fileName);
 		S3Object s3Object = s3Utils.get(fileName);
+		S3Object s3ObjectAws = s3UtilsAws.get(fileName);
 
 		ObjectMetadata s3ObjectMetadata = s3Object.getObjectMetadata();
 		ObjectMetadata s3ObjectMetadataAws = s3ObjectAws.getObjectMetadata();
 
-		Assert.assertEquals(file.length(), s3ObjectMetadata.getContentLength());
-		Assert.assertEquals(file.length(),
+		Assert.assertEquals(FileUtils.getLength(filePath),
+				s3ObjectMetadata.getContentLength());
+		Assert.assertEquals(FileUtils.getLength(filePath),
 				s3ObjectMetadataAws.getContentLength());
-
-		Assert.assertEquals(s3ObjectMetadata.getContentMD5(),
-				s3ObjectMetadataAws.getContentMD5());
 
 		Map<String, Object> map = Common.compareMaps(
 				s3ObjectMetadata.getRawMetadata(),

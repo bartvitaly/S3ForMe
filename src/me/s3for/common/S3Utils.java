@@ -17,6 +17,7 @@ import me.s3for.interfaces.S3UtilsInterface;
 
 import org.apache.http.Header;
 import org.apache.log4j.Level;
+import org.testng.Assert;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
@@ -41,6 +42,7 @@ import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PartETag;
 import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.PutObjectRequest;
@@ -49,6 +51,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.SetBucketAclRequest;
 import com.amazonaws.services.s3.model.UploadPartRequest;
+import com.amazonaws.services.s3.model.UploadPartResult;
 
 public class S3Utils extends Common implements S3UtilsInterface {
 
@@ -316,18 +319,27 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		}
 	}
 
-	public Object[] multipartUpload(String objectName, String filePath,
-			int partSizeMb) {
-
-		CompleteMultipartUploadResult completeMultipartUploadResult = null;
-		AccessControlList acl = createAccessControlList(Permission.Read);
-
-		List<PartETag> partETags = new ArrayList<PartETag>();
+	public InitiateMultipartUploadResult initiateMultipartUpload(
+			String objectName) {
 
 		InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest(
 				bucketName, objectName);
 		InitiateMultipartUploadResult initResponse = s3client
-				.initiateMultipartUpload(initRequest.withCannedACL(CannedAccessControlList.PublicRead));
+				.initiateMultipartUpload(initRequest
+						.withCannedACL(CannedAccessControlList.PublicRead));
+
+		return initResponse;
+
+	}
+
+	public Object[] multipartUpload(String objectName, String filePath,
+			int partSizeMb) {
+
+		CompleteMultipartUploadResult completeMultipartUploadResult = null;
+		List<PartETag> partETags = new ArrayList<PartETag>();
+
+		InitiateMultipartUploadResult initResponse = initiateMultipartUpload(objectName);
+
 		String uploadId = initResponse.getUploadId();
 
 		File file = new File(filePath);
@@ -337,19 +349,14 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		try {
 			// Step 2: Upload parts.
 			long filePosition = 0;
-			for (int i = 1; filePosition < contentLength; i++) {
+			for (int partNumber = 1; filePosition < contentLength; partNumber++) {
 				// Last part can be less than 5 MB. Adjust part size.
 				partSize = Math.min(partSize, (contentLength - filePosition));
 
-				// Create request to upload a part.
-				UploadPartRequest uploadRequest = new UploadPartRequest()
-						.withBucketName(bucketName).withKey(objectName)
-						.withUploadId(uploadId).withPartNumber(i)
-						.withFileOffset(filePosition).withFile(file)
-						.withPartSize(partSize);
-
 				// Upload part and add response to our list.
-				partETags.add(s3client.uploadPart(uploadRequest).getPartETag());
+				UploadPartResult uploadPartResult = uploadPart(objectName,
+						uploadId, filePosition, file, partSize, partNumber);
+				partETags.add(uploadPartResult.getPartETag());
 
 				filePosition += partSize;
 			}
@@ -369,6 +376,33 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	}
 
+	public UploadPartResult uploadPart(String objectName, String uploadId,
+			long filePosition, File file, long partSize, int partNumber) {
+
+		UploadPartRequest uploadRequest = new UploadPartRequest()
+				.withBucketName(bucketName).withKey(objectName)
+				.withUploadId(uploadId).withPartNumber(partNumber)
+				.withFileOffset(filePosition).withFile(file)
+				.withPartSize(partSize);
+
+		return s3client.uploadPart(uploadRequest);
+
+	}
+
+	public CompleteMultipartUploadResult completeUploadPart(String objectName,
+			String uploadId, UploadPartResult uploadPartResult) {
+		List<PartETag> partETags = new ArrayList<PartETag>();
+		partETags.add(uploadPartResult.getPartETag());
+
+		CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest(
+				bucketName, objectName, uploadId, partETags);
+
+		CompleteMultipartUploadResult completeMultipartUploadResult = s3client
+				.completeMultipartUpload(compRequest);
+
+		return completeMultipartUploadResult;
+	}
+
 	public static AccessControlList createAccessControlList(
 			Permission permission) {
 		AccessControlList acl = new AccessControlList();
@@ -376,7 +410,23 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 		return acl;
 	}
-	
+
+	public static boolean compareObjectsMetadata(S3Object s3Object,
+			S3Object s3Object_2, String[] avoidKeys) {
+
+		ObjectMetadata s3ObjectMetadata = s3Object.getObjectMetadata();
+		ObjectMetadata s3ObjectMetadataAws = s3Object_2.getObjectMetadata();
+
+		Map<String, Object> map = Common.compareMaps(
+				s3ObjectMetadata.getRawMetadata(),
+				s3ObjectMetadataAws.getRawMetadata(), avoidKeys);
+
+		System.out.println("Metadata: s3Object vs s3Object_2");
+		Common.printMap(map);
+
+		return map.size() == 0;
+	}
+
 	public S3Object get(String objectName) throws Exception {
 		System.out.println("Downloading an object");
 		S3Object object = null;
