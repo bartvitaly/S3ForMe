@@ -17,7 +17,6 @@ import me.s3for.interfaces.S3UtilsInterface;
 
 import org.apache.http.Header;
 import org.apache.log4j.Level;
-import org.testng.Assert;
 
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
