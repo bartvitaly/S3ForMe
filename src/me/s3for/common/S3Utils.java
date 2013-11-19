@@ -353,8 +353,10 @@ public class S3Utils extends Common implements S3UtilsInterface {
 				partSize = Math.min(partSize, (contentLength - filePosition));
 
 				// Upload part and add response to our list.
-				UploadPartResult uploadPartResult = uploadPart(objectName,
-						uploadId, filePosition, file, partSize, partNumber);
+				UploadPartRequest uploadRequest = uploadRequest(objectName,
+						uploadId, filePosition, file, partSize, partNumber,
+						FileUtils.getMd5(filePath));
+				UploadPartResult uploadPartResult = uploadPart(uploadRequest);
 				partETags.add(uploadPartResult.getPartETag());
 
 				filePosition += partSize;
@@ -375,16 +377,33 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	}
 
-	public UploadPartResult uploadPart(String objectName, String uploadId,
-			long filePosition, File file, long partSize, int partNumber) {
+	public UploadPartResult uploadPart(UploadPartRequest uploadRequest) {
+		return s3client.uploadPart(uploadRequest);
+	}
+
+	public UploadPartRequest uploadRequest(String objectName, String uploadId,
+			long filePosition, File file, long partSize, int partNumber,
+			String md5Digest) {
 
 		UploadPartRequest uploadRequest = new UploadPartRequest()
 				.withBucketName(bucketName).withKey(objectName)
 				.withUploadId(uploadId).withPartNumber(partNumber)
 				.withFileOffset(filePosition).withFile(file)
-				.withPartSize(partSize);
+				.withMD5Digest(md5Digest);
 
-		return s3client.uploadPart(uploadRequest);
+		return uploadRequest;
+
+	}
+
+	public UploadPartRequest uploadRequest(String objectName, String uploadId,
+			long filePosition, File file, long partSize, int partNumber) {
+
+		UploadPartRequest uploadRequest = new UploadPartRequest()
+				.withBucketName(bucketName).withKey(objectName)
+				.withUploadId(uploadId).withPartNumber(partNumber)
+				.withFileOffset(filePosition).withFile(file);
+
+		return uploadRequest;
 
 	}
 

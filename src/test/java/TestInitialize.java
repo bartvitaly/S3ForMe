@@ -31,6 +31,9 @@ public class TestInitialize extends WebDriverCommon {
 	final static String path = FileUtils.getRootPath() + "\\static\\"
 			+ INDEX_FILE;
 
+	final static String TEST_OUTPUT_FOLDER = FileUtils.getRootPath()
+			+ "\\test-output\\";
+
 	final static String bucketName = PropertiesUtils.getProperty("bucket");
 	final static String bucketNameAws = PropertiesUtils
 			.getProperty("AWSbucket");

@@ -26,6 +26,10 @@ public class FileUtils {
 		return "";
 	}
 
+	public static void createFolder(String path) {
+		(new File(path)).mkdir();
+	}
+
 	public static File create(String name, String text) throws IOException {
 
 		String[] fileName = name.split("\\.");
@@ -102,6 +106,9 @@ public class FileUtils {
 	public static File getPart(String filePath, String filePathNew,
 			long position, long size) {
 		Path path = Paths.get(filePath);
+
+		write(filePathNew, "");
+
 		byte[] bytes;
 		byte[] bytesNew = new byte[(int) size];
 
