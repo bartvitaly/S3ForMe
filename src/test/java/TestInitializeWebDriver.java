@@ -7,11 +7,12 @@ import me.s3for.common.PropertiesUtils;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.htmlunit.HtmlUnitDriver;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeTest;
 
 public class TestInitializeWebDriver extends TestInitialize {
 
-	@BeforeTest(groups = { "cors" })
+	@BeforeMethod(groups = { "cors" })
 	public void createDriver() {
 
 		System.setProperty("webdriver.chrome.driver",

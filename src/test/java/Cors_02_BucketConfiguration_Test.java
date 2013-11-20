@@ -24,7 +24,7 @@ public class Cors_02_BucketConfiguration_Test extends TestInitialize {
 
 	AmazonS3Client s3client, s3clientAws;
 
-	@Test(groups = { "cors_configuration" })
+	@Test(groups = { "cors" })
 	public void configurationTest() throws IOException {
 
 		String ruleId = "rule";
@@ -68,7 +68,7 @@ public class Cors_02_BucketConfiguration_Test extends TestInitialize {
 
 	}
 
-	@Test(groups = { "cors_configuration" })
+	@Test(groups = { "cors" })
 	public void deleteConfigurationTest() throws IOException {
 		S3Utils s3Utils = new S3Utils(keyS3, secretS3, serverS3);
 		S3Utils s3UtilsAws = new S3Utils();

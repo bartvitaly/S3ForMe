@@ -232,6 +232,10 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		s3client.setObjectAcl(bucketName, objectName, acl);
 	}
 
+	public AccessControlList getObjectAcl(String objectName) {
+		return s3client.getObjectAcl(bucketName, objectName);
+	}
+
 	public void putTextFile(String objectName, String text, String bucketName) {
 
 		try {
@@ -269,15 +273,31 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	}
 
 	public PutObjectResult put(String objectName, File file) {
-
-		AccessControlList acl = createAccessControlList(Permission.Read);
 		PutObjectResult putObjectResult = null;
 
 		try {
 			PutObjectRequest putObjectRequest = new PutObjectRequest(
 					bucketName, objectName, file);
 			putObjectResult = s3client.putObject(putObjectRequest
-					.withAccessControlList(acl));
+					.withCannedAcl(CannedAccessControlList.PublicRead));
+		} catch (AmazonServiceException ase) {
+			printAmazonServiceException(ase);
+		} catch (AmazonClientException ace) {
+			printAmazonClientException(ace);
+		}
+
+		return putObjectResult;
+	}
+
+	public PutObjectResult put(String objectName, File file,
+			CannedAccessControlList cannedAcl) {
+		PutObjectResult putObjectResult = null;
+
+		try {
+			PutObjectRequest putObjectRequest = new PutObjectRequest(
+					bucketName, objectName, file);
+			putObjectResult = s3client.putObject(putObjectRequest
+					.withCannedAcl(cannedAcl));
 		} catch (AmazonServiceException ase) {
 			printAmazonServiceException(ase);
 		} catch (AmazonClientException ace) {
@@ -288,8 +308,6 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	}
 
 	public PutObjectResult putAsInputStream(String objectName, File file) {
-
-		AccessControlList acl = createAccessControlList(Permission.Read);
 		PutObjectResult putObjectResult = null;
 
 		InputStream is;
@@ -301,7 +319,8 @@ public class S3Utils extends Common implements S3UtilsInterface {
 			PutObjectRequest putObjectRequest = new PutObjectRequest(
 					bucketName, objectName, is, om);
 			putObjectResult = s3client.putObject(putObjectRequest
-					.withAccessControlList(acl));
+					.withCannedAcl(CannedAccessControlList.PublicRead)
+					.withInputStream(is));
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (AmazonServiceException ase) {
@@ -369,7 +388,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 				// Upload part and add response to our list.
 				UploadPartRequest uploadRequest = uploadRequest(objectName,
 						initResponse.getUploadId(), filePosition, file,
-						partSize, partNumber, FileUtils.getMd5(filePath));
+						partSize, partNumber);
 				UploadPartResult uploadPartResult = uploadPart(uploadRequest);
 				partETags.add(uploadPartResult.getPartETag());
 

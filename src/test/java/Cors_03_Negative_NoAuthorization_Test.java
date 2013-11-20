@@ -18,7 +18,7 @@ public class Cors_03_Negative_NoAuthorization_Test extends TestInitialize {
 	String errorMessage = "Status Code: 403";
 
 	@Test(groups = { "cors" })
-	public void configurationTest() throws IOException {
+	public void configurationNoAuthentificationTest() throws IOException {
 
 		S3Utils s3Utils = new S3Utils(keyS3, secretS3, serverS3);
 		S3Utils s3UtilsNoAuth = new S3Utils(false, serverS3);

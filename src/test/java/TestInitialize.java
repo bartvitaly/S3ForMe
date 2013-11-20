@@ -48,11 +48,10 @@ public class TestInitialize extends WebDriverCommon {
 	public static Logger logger = Logger
 			.getLogger(TestInitializeWebDriver.class);
 
-	@BeforeSuite(groups = { "cors" })
+	@BeforeSuite(groups = { "api", "cors" })
 	public void initLogger() {
 		BasicConfigurator.configure();
 		Logger.getRootLogger().setLevel(Level.ERROR);
 		// DOMConfigurator.configure("log4j.xml");
 	}
-
 }

@@ -40,7 +40,7 @@ public class Cors_01_Positive_AllowedOrigin_Test extends
 	}
 
 	@Test(groups = { "cors" })
-	public void positiveGet_Test() throws IOException {
+	public void positiveGetAllowedOriginTest() throws IOException {
 		Assert.assertEquals(testAllowedOrigin(home, "GET", nodeXpath),
 				RESPONSE_CODE_SUCCESS);
 	}

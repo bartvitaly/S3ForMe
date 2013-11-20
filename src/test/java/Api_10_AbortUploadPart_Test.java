@@ -1,7 +1,6 @@
 package test.java;
 
 import java.io.File;
-import java.io.IOException;
 
 import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
@@ -22,7 +21,7 @@ public class Api_10_AbortUploadPart_Test extends TestInitialize {
 	InitiateMultipartUploadResult initResponse, initResponseAws;
 	String uploadId, uploadIdAws;
 	private static int partNumber = 1;
-	private static long partSize = 1024 * 5; // * 1024
+	private static long partSize = 1024 * 1024 * 5;
 	private static long position = 0;
 	File file;
 
@@ -59,11 +58,11 @@ public class Api_10_AbortUploadPart_Test extends TestInitialize {
 	/**
 	 * @desc Check ability to upload part of an object into a bucket
 	 * 
-	 * @throws IOException
+	 * @throws Exception
 	 */
 
 	@Test(groups = { "api" })
-	public void uploadPartTest() throws Exception {
+	public void abortUploadPartTest() throws Exception {
 
 		UploadPartRequest uploadRequest = s3Utils.uploadRequest(fileName,
 				uploadId, position, file, partSize, partNumber);
