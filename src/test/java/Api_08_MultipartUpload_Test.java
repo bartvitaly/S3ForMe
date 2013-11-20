@@ -7,7 +7,6 @@ import me.s3for.common.Common;
 import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
 
-import org.apache.log4j.Level;
 import org.testng.Assert;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
@@ -28,7 +27,6 @@ public class Api_08_MultipartUpload_Test extends TestInitialize {
 
 	@BeforeGroups(groups = { "api" })
 	public void before() {
-		logger.setLevel(Level.ERROR);
 
 		// initiate S3 and AWS
 		s3Utils = new S3Utils(keyS3, secretS3, serverS3);

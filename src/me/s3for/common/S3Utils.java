@@ -2,6 +2,8 @@ package me.s3for.common;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -285,6 +287,32 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		return putObjectResult;
 	}
 
+	public PutObjectResult putAsInputStream(String objectName, File file) {
+
+		AccessControlList acl = createAccessControlList(Permission.Read);
+		PutObjectResult putObjectResult = null;
+
+		InputStream is;
+		try {
+			is = new FileInputStream(file);
+			ObjectMetadata om = new ObjectMetadata();
+			om.setContentLength(file.length());
+
+			PutObjectRequest putObjectRequest = new PutObjectRequest(
+					bucketName, objectName, is, om);
+			putObjectResult = s3client.putObject(putObjectRequest
+					.withAccessControlList(acl));
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (AmazonServiceException ase) {
+			printAmazonServiceException(ase);
+		} catch (AmazonClientException ace) {
+			printAmazonClientException(ace);
+		}
+
+		return putObjectResult;
+	}
+
 	// copy object is made for the same bucket
 	public CopyObjectResult copyObject(String objectName, String copyObjectName) {
 
@@ -318,6 +346,52 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		}
 	}
 
+	public Object[] multipartUpload(String objectName, String filePath,
+			int partSizeMb) {
+
+		CompleteMultipartUploadResult completeMultipartUploadResult = null;
+		List<PartETag> partETags = new ArrayList<PartETag>();
+
+		InitiateMultipartUploadResult initResponse = initiateMultipartUpload(objectName);
+
+		File file = new File(filePath);
+		long contentLength = file.length();
+		long partSize = partSizeMb * 1024 * 1024; // Set part size to
+													// 'partSizeMb' MB.
+
+		try {
+			// Step 2: Upload parts.
+			long filePosition = 0;
+			for (int partNumber = 1; filePosition < contentLength; partNumber++) {
+				// Last part can be less than 5 MB. Adjust part size.
+				partSize = Math.min(partSize, (contentLength - filePosition));
+
+				// Upload part and add response to our list.
+				UploadPartRequest uploadRequest = uploadRequest(objectName,
+						initResponse.getUploadId(), filePosition, file,
+						partSize, partNumber, FileUtils.getMd5(filePath));
+				UploadPartResult uploadPartResult = uploadPart(uploadRequest);
+				partETags.add(uploadPartResult.getPartETag());
+
+				filePosition += partSize;
+			}
+
+			// Step 3: complete.
+			CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest(
+					bucketName, objectName, initResponse.getUploadId(),
+					partETags);
+
+			completeMultipartUploadResult = s3client
+					.completeMultipartUpload(compRequest);
+		} catch (Exception e) {
+			abortUploadPart(objectName, initResponse.getUploadId());
+		}
+
+		return new Object[] { completeMultipartUploadResult,
+				initResponse.getUploadId() };
+
+	}
+
 	public InitiateMultipartUploadResult initiateMultipartUpload(
 			String objectName) {
 
@@ -331,54 +405,13 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	}
 
-	public Object[] multipartUpload(String objectName, String filePath,
-			int partSizeMb) {
-
-		CompleteMultipartUploadResult completeMultipartUploadResult = null;
-		List<PartETag> partETags = new ArrayList<PartETag>();
-
-		InitiateMultipartUploadResult initResponse = initiateMultipartUpload(objectName);
-
-		String uploadId = initResponse.getUploadId();
-
-		File file = new File(filePath);
-		long contentLength = file.length();
-		long partSize = partSizeMb * 1024 * 1024; // Set part size to 5 MB.
-
-		try {
-			// Step 2: Upload parts.
-			long filePosition = 0;
-			for (int partNumber = 1; filePosition < contentLength; partNumber++) {
-				// Last part can be less than 5 MB. Adjust part size.
-				partSize = Math.min(partSize, (contentLength - filePosition));
-
-				// Upload part and add response to our list.
-				UploadPartRequest uploadRequest = uploadRequest(objectName,
-						uploadId, filePosition, file, partSize, partNumber,
-						FileUtils.getMd5(filePath));
-				UploadPartResult uploadPartResult = uploadPart(uploadRequest);
-				partETags.add(uploadPartResult.getPartETag());
-
-				filePosition += partSize;
-			}
-
-			// Step 3: complete.
-			CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest(
-					bucketName, objectName, uploadId, partETags);
-
-			completeMultipartUploadResult = s3client
-					.completeMultipartUpload(compRequest);
-		} catch (Exception e) {
-			s3client.abortMultipartUpload(new AbortMultipartUploadRequest(
-					bucketName, objectName, uploadId));
-		}
-
-		return new Object[] { completeMultipartUploadResult, uploadId };
-
-	}
-
 	public UploadPartResult uploadPart(UploadPartRequest uploadRequest) {
-		return s3client.uploadPart(uploadRequest);
+		try {
+			return s3client.uploadPart(uploadRequest);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public UploadPartRequest uploadRequest(String objectName, String uploadId,
@@ -422,6 +455,14 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		return completeMultipartUploadResult;
 	}
 
+	public void abortUploadPart(String objectName, String uploadID) {
+
+		AbortMultipartUploadRequest abortMultipartUploadRequest = new AbortMultipartUploadRequest(
+				bucketName, objectName, uploadID);
+
+		s3client.abortMultipartUpload(abortMultipartUploadRequest);
+	}
+
 	public static AccessControlList createAccessControlList(
 			Permission permission) {
 		AccessControlList acl = new AccessControlList();
@@ -450,7 +491,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		System.out.println("Downloading an object");
 		S3Object object = null;
 		try {
-			object = s3client.getObject(new GetObjectRequest(bucket.getName(),
+			object = s3client.getObject(new GetObjectRequest(bucketName,
 					objectName));
 		} catch (AmazonS3Exception e) {
 			if (!e.getMessage().contains(NO_SUCH_KEY)) {
@@ -463,6 +504,22 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		}
 
 		return object;
+	}
+
+	public boolean isObjectExist(String objectName) throws Exception {
+		try {
+			s3client.getObject(new GetObjectRequest(bucketName, objectName));
+		} catch (AmazonS3Exception e) {
+			if (e.getMessage().contains(NO_SUCH_KEY)) {
+				return false;
+			}
+		} catch (AmazonServiceException ase) {
+			printAmazonServiceException(ase);
+		} catch (AmazonClientException ace) {
+			printAmazonClientException(ace);
+		}
+
+		return true;
 	}
 
 	public static AllowedMethods getAllowedMethod(String requestType) {

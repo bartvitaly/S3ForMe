@@ -9,7 +9,8 @@ import me.s3for.common.S3Utils;
 import me.s3for.common.StringUtils;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -20,14 +21,17 @@ public class Api_01_Get_Put_Object_Test extends TestInitialize {
 
 	S3Utils s3Utils, s3UtilsAws;
 	String fileName = "file.txt";
+	// String fileName = "test_5mb.file";
+	// String filePath = FileUtils.getRootPath() + "\\static\\" + fileName;
+
 	File file, fileAws;
 
 	/**
 	 * @desc The code to be run before each test
 	 */
 
-	@BeforeGroups(groups = { "api" })
-	public void before() {
+	@BeforeTest(groups = { "api" })
+	public void init() {
 		// initiate S3 and AWS
 		s3Utils = new S3Utils(keyS3, secretS3, serverS3);
 		s3UtilsAws = new S3Utils();
@@ -38,14 +42,23 @@ public class Api_01_Get_Put_Object_Test extends TestInitialize {
 
 		// put a file in a basket
 		file = S3Utils.createSampleFile();
-		PutObjectResult putObjectResult = s3Utils.put(fileName, file);
-		PutObjectResult putObjectResultAws = s3UtilsAws.put(fileName, file);
+		// file = new File(filePath);
+		PutObjectResult putObjectResult = s3Utils.putAsInputStream(fileName,
+				file);
+		PutObjectResult putObjectResultAws = s3UtilsAws.putAsInputStream(
+				fileName, file);
 
 		String md5 = putObjectResult.getContentMd5();
 		String md5Aws = putObjectResultAws.getContentMd5();
 
 		Assert.assertEquals(md5, md5Aws);
 
+	}
+
+	@AfterTest(groups = { "api" })
+	public void tear() {
+		s3Utils.deleteObject(fileName);
+		s3UtilsAws.deleteObject(fileName);
 	}
 
 	/**
@@ -55,7 +68,7 @@ public class Api_01_Get_Put_Object_Test extends TestInitialize {
 	 */
 
 	@Test(groups = { "api" })
-	public void bucketWriteTest() throws Exception {
+	public void bucketGetPutTest() throws Exception {
 
 		// Get S3 objects
 		S3Object s3Object = s3Utils.get(fileName);
