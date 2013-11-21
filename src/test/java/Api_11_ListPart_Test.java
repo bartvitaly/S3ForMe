@@ -1,6 +1,7 @@
 package test.java;
 
 import java.io.File;
+import java.util.List;
 
 import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
@@ -10,9 +11,10 @@ import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
+import com.amazonaws.services.s3.model.PartSummary;
 import com.amazonaws.services.s3.model.UploadPartRequest;
 
-public class Api_10_AbortUploadPart_Test extends TestInitialize {
+public class Api_11_ListPart_Test extends TestInitialize {
 
 	S3Utils s3Utils, s3UtilsAws;
 	String fileName = "test_5mb.file";
@@ -62,7 +64,7 @@ public class Api_10_AbortUploadPart_Test extends TestInitialize {
 	 */
 
 	@Test(groups = { "api" })
-	public void abortUploadPartTest() throws Exception {
+	public void uploadListParts_Test() throws Exception {
 
 		UploadPartRequest uploadRequest = s3Utils.uploadRequest(fileName,
 				uploadId, position, file, partSize, partNumber);
@@ -73,20 +75,24 @@ public class Api_10_AbortUploadPart_Test extends TestInitialize {
 		s3Utils.uploadPart(uploadRequest);
 		s3UtilsAws.uploadPart(uploadRequestAws);
 
-		// Abort upload
-		s3Utils.abortUploadPart(fileName, uploadId);
-		s3UtilsAws.abortUploadPart(fileName, uploadIdAws);
+		List<PartSummary> parts = s3Utils.getPartsList(fileName, uploadId);
+		List<PartSummary> partsAws = s3UtilsAws.getPartsList(fileName,
+				uploadIdAws);
+
+		Assert.assertEquals(parts.get(0).getETag(), partsAws.get(0).getETag());
 
 		uploadRequest = s3Utils.uploadRequest(fileName, uploadId, partSize + 1,
-				file, 1, 2);
-		uploadRequestAws = s3UtilsAws.uploadRequest(fileName, uploadId,
-				partSize + 1, file, 1, 2);
+				file, 1, partNumber + 1);
+		uploadRequestAws = s3UtilsAws.uploadRequest(fileName, uploadIdAws,
+				partSize + 1, file, 1, partNumber + 1);
 
-		// Check that further upload is impossible
-		Assert.assertNull(s3Utils.uploadPart(uploadRequest),
-				"Upload was not aborted");
-		Assert.assertNull(s3UtilsAws.uploadPart(uploadRequestAws),
-				"Upload was not aborted");
+		s3Utils.uploadPart(uploadRequest);
+		s3UtilsAws.uploadPart(uploadRequestAws);
+
+		parts = s3Utils.getPartsList(fileName, uploadId);
+		partsAws = s3UtilsAws.getPartsList(fileName, uploadIdAws);
+
+		Assert.assertEquals(parts.get(1).getETag(), partsAws.get(1).getETag());
 
 	}
 }

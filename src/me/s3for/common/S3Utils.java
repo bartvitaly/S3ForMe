@@ -21,11 +21,8 @@ import me.s3for.interfaces.S3UtilsInterface;
 import org.apache.http.Header;
 import org.apache.log4j.Level;
 
-import test.java.TestInitialize;
-
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
-import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
 import com.amazonaws.services.identitymanagement.model.CreateAccessKeyRequest;
@@ -48,14 +45,16 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.GetBucketAclRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
 import com.amazonaws.services.s3.model.Grant;
-import com.amazonaws.services.s3.model.Grantee;
 import com.amazonaws.services.s3.model.GroupGrantee;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.ListObjectsRequest;
+import com.amazonaws.services.s3.model.ListPartsRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PartETag;
+import com.amazonaws.services.s3.model.PartListing;
+import com.amazonaws.services.s3.model.PartSummary;
 import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
@@ -547,6 +546,15 @@ public class S3Utils extends Common implements S3UtilsInterface {
 				bucketName, objectName, uploadID);
 
 		s3client.abortMultipartUpload(abortMultipartUploadRequest);
+	}
+
+	public List<PartSummary> getPartsList(String objectName, String uploadId) {
+		ListPartsRequest listPartsRequest = new ListPartsRequest(bucketName,
+				objectName, uploadId);
+		PartListing partListing = s3client.listParts(listPartsRequest);
+		List<PartSummary> parts = partListing.getParts();
+
+		return parts;
 	}
 
 	public static AccessControlList createAccessControlList(

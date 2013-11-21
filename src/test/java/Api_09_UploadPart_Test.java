@@ -3,6 +3,7 @@ package test.java;
 import java.io.File;
 import java.io.IOException;
 
+import me.s3for.common.Common;
 import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
 import me.s3for.common.StringUtils;
@@ -86,6 +87,8 @@ public class Api_09_UploadPart_Test extends TestInitialize {
 				uploadPartResult);
 		s3UtilsAws.completeUploadPart(fileName, initResponseAws.getUploadId(),
 				uploadPartResultAws);
+
+		Common.waitSec(10);
 
 		// Get objects
 		S3Object s3Object = s3Utils.get(fileName);

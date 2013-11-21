@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+import me.s3for.common.Common;
 import me.s3for.common.S3Utils;
 
 import org.testng.Assert;
@@ -54,13 +55,15 @@ public class Api_07_Get_ObjectList_Test extends TestInitialize {
 	 */
 
 	@Test(groups = { "api" })
-	public void bucketGetPutTest() throws Exception {
+	public void bucketGetObjectsList_Test() throws Exception {
 
 		List<S3ObjectSummary> buckets = s3Utils.getObjectList();
 		List<S3ObjectSummary> bucketsAws = s3UtilsAws.getObjectList();
 
 		s3Utils.put(fileName, file);
 		s3UtilsAws.put(fileName, file);
+
+		Common.waitSec(10);
 
 		List<S3ObjectSummary> bucketsNew = s3Utils.getObjectList();
 		List<S3ObjectSummary> bucketsAwsNew = s3UtilsAws.getObjectList();

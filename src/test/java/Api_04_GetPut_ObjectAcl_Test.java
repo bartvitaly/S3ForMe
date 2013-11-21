@@ -98,6 +98,21 @@ public class Api_04_GetPut_ObjectAcl_Test extends TestInitialize {
 		AccessControlList aclS3 = s3Utils.getObjectAcl(fileName);
 		AccessControlList aclS3Aws = s3UtilsAws.getObjectAcl(fileName);
 
+		// Check not authrized user is able to get a public file
+		s3Utils = new S3Utils(false, serverS3);
+		s3Utils.bucketName = bucketName;
+
+		s3UtilsAws = new S3Utils(false, "");
+		s3UtilsAws.bucketName = bucketNameAws;
+
+		long length = s3Utils.get(fileName).getObjectMetadata()
+				.getContentLength();
+		long lengthAws = s3UtilsAws.get(fileName).getObjectMetadata()
+				.getContentLength();
+
+		Assert.assertEquals(length, file.length());
+		Assert.assertEquals(lengthAws, file.length());
+
 		Assert.assertTrue(S3Utils.checkGrantee(aclS3, GRANTEE_DEFAULT,
 				PERMISSION_FULL_CONTROL), ERROR_MESSAGE);
 		Assert.assertTrue(S3Utils.checkGrantee(aclS3Aws, GRANTEE_DEFAULT,
