@@ -12,6 +12,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,9 +21,16 @@ import me.s3for.interfaces.S3UtilsInterface;
 import org.apache.http.Header;
 import org.apache.log4j.Level;
 
+import test.java.TestInitialize;
+
 import com.amazonaws.AmazonClientException;
 import com.amazonaws.AmazonServiceException;
+import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.services.identitymanagement.AmazonIdentityManagementClient;
+import com.amazonaws.services.identitymanagement.model.CreateAccessKeyRequest;
+import com.amazonaws.services.identitymanagement.model.CreateUserRequest;
+import com.amazonaws.services.identitymanagement.model.CreateUserResult;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.AbortMultipartUploadRequest;
 import com.amazonaws.services.s3.model.AccessControlList;
@@ -37,7 +45,10 @@ import com.amazonaws.services.s3.model.CompleteMultipartUploadResult;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.CopyObjectResult;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.GetBucketAclRequest;
 import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.Grant;
+import com.amazonaws.services.s3.model.Grantee;
 import com.amazonaws.services.s3.model.GroupGrantee;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
@@ -62,6 +73,8 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	final static String server = PropertiesUtils.getProperty("AWSserver");
 
 	final static String NO_SUCH_KEY = "NoSuchKey";
+
+	public static String granteeErrorMessage = "";
 
 	AmazonS3Client s3client;
 	Bucket bucket;
@@ -91,6 +104,27 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	public AmazonS3Client getClient() {
 		return s3client;
+	}
+
+	public void createUser(String userName) {
+		CreateUserRequest user = new CreateUserRequest(userName);
+		CreateAccessKeyRequest key = new CreateAccessKeyRequest();
+
+		BasicAWSCredentials cred = new BasicAWSCredentials(
+				"81ECCFF694061A827D88BC56794D6193",
+				"d49442d5daec89611ee430bacffc8de3815bf228");
+
+		key.withUserName(user.getUserName());
+		key.setRequestCredentials(cred);
+
+		user.setRequestCredentials(key.getRequestCredentials());
+		user.setPath("/");
+		AmazonIdentityManagementClient client = new AmazonIdentityManagementClient(
+				cred);
+		CreateUserResult result = client.createUser(user);
+
+		System.out.println(result);
+
 	}
 
 	public static String creteCorsHtml(String path, String corsJsUri,
@@ -215,6 +249,24 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		s3client.setBucketAcl(setBucketAclRequest);
 	}
 
+	public void setBucketAcl(CannedAccessControlList cannedAcl) {
+		SetBucketAclRequest setBucketAclRequest = new SetBucketAclRequest(
+				bucketName, cannedAcl);
+		s3client.setBucketAcl(setBucketAclRequest);
+	}
+
+	public void setBucketAcl(AccessControlList acl) {
+		SetBucketAclRequest setBucketAclRequest = new SetBucketAclRequest(
+				bucketName, acl);
+		s3client.setBucketAcl(setBucketAclRequest);
+	}
+
+	public AccessControlList getBucketAcl() {
+		GetBucketAclRequest getBucketAclRequest = new GetBucketAclRequest(
+				bucketName);
+		return s3client.getBucketAcl(getBucketAclRequest);
+	}
+
 	public Bucket getBucket(String bucketName) {
 		List<Bucket> bucketList = getBucketList();
 
@@ -273,19 +325,8 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	}
 
 	public PutObjectResult put(String objectName, File file) {
-		PutObjectResult putObjectResult = null;
-
-		try {
-			PutObjectRequest putObjectRequest = new PutObjectRequest(
-					bucketName, objectName, file);
-			putObjectResult = s3client.putObject(putObjectRequest
-					.withCannedAcl(CannedAccessControlList.PublicRead));
-		} catch (AmazonServiceException ase) {
-			printAmazonServiceException(ase);
-		} catch (AmazonClientException ace) {
-			printAmazonClientException(ace);
-		}
-
+		PutObjectResult putObjectResult = put(objectName, file,
+				CannedAccessControlList.PublicRead);
 		return putObjectResult;
 	}
 
@@ -488,6 +529,30 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		acl.grantPermission(GroupGrantee.AllUsers, permission);
 
 		return acl;
+	}
+
+	public static boolean checkGrantee(AccessControlList acl,
+			String granteeName, String permissionName) {
+		Iterator<Grant> iterator = acl.getGrants().iterator();
+
+		while (iterator.hasNext()) {
+			Grant grant = iterator.next();
+			String grantee = grant.getGrantee().toString();
+			String permission = grant.getPermission().toString();
+
+			granteeErrorMessage = "\nGrantee expected: '" + grantee
+					+ "', actual: '" + granteeName
+					+ "'.\nPermission expected: '" + permission + "', actual:'"
+					+ permissionName + "'\n";
+
+			if (grantee.contains(granteeName)
+					&& permission.equals(permissionName)) {
+				granteeErrorMessage = "";
+				return true;
+			}
+
+		}
+		return false;
 	}
 
 	public static boolean compareObjectsMetadata(S3Object s3Object,

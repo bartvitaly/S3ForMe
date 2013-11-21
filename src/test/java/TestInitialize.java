@@ -11,8 +11,9 @@ import org.testng.annotations.BeforeSuite;
 
 public class TestInitialize extends WebDriverCommon {
 
-	final static String keyS3 = PropertiesUtils.getProperty("S3AccessKeyId");
-	final static String secretS3 = PropertiesUtils
+	public final static String keyS3 = PropertiesUtils
+			.getProperty("S3AccessKeyId");
+	public final static String secretS3 = PropertiesUtils
 			.getProperty("S3SecretAccessKeyID");
 	final static String serverS3 = PropertiesUtils.getProperty("S3server");
 
