@@ -94,6 +94,10 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	}
 
 	public S3Utils(boolean authorize, String server) {
+
+		if (server.equals("")) {
+			server = S3Utils.server;
+		}
 		if (!authorize) {
 			s3client = new AmazonS3Client();
 		} else {
@@ -110,9 +114,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		CreateUserRequest user = new CreateUserRequest(userName);
 		CreateAccessKeyRequest key = new CreateAccessKeyRequest();
 
-		BasicAWSCredentials cred = new BasicAWSCredentials(
-				"81ECCFF694061A827D88BC56794D6193",
-				"d49442d5daec89611ee430bacffc8de3815bf228");
+		BasicAWSCredentials cred = new BasicAWSCredentials("access", "secret");
 
 		key.withUserName(user.getUserName());
 		key.setRequestCredentials(cred);
@@ -231,7 +233,14 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	// Bucket activities
 	public List<Bucket> getBucketList() {
-		List<Bucket> bucketList = s3client.listBuckets();
+		List<Bucket> bucketList = new ArrayList<Bucket>();
+		try {
+			bucketList = s3client.listBuckets();
+		} catch (AmazonS3Exception e) {
+			e.printStackTrace();
+		} catch (AmazonClientException e) {
+			e.printStackTrace();
+		}
 
 		return bucketList;
 	}
@@ -277,6 +286,23 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		}
 
 		return null;
+	}
+
+	public List<S3ObjectSummary> getObjectList() {
+
+		ObjectListing current = s3client.listObjects(bucketName);
+		List<S3ObjectSummary> keyList = current.getObjectSummaries();
+		ObjectListing next = s3client.listNextBatchOfObjects(current);
+		keyList.addAll(next.getObjectSummaries());
+
+		while (next.isTruncated()) {
+			current = s3client.listNextBatchOfObjects(next);
+			keyList.addAll(current.getObjectSummaries());
+			next = s3client.listNextBatchOfObjects(current);
+		}
+		keyList.addAll(next.getObjectSummaries());
+
+		return keyList;
 	}
 
 	public void setObjectAcl(String objectName, Permission permission) {
