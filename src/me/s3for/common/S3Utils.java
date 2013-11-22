@@ -60,6 +60,7 @@ import com.amazonaws.services.s3.model.PartSummary;
 import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
+import com.amazonaws.services.s3.model.ResponseHeaderOverrides;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.SetBucketAclRequest;
@@ -77,20 +78,20 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	public static String granteeErrorMessage = "";
 
-	AmazonS3Client s3client;
+	AmazonS3Client s3Client;
 	Bucket bucket;
 	public String bucketName;
 
 	// Constructors
 	public S3Utils(String key, String secret, String server) {
-		s3client = new AmazonS3Client(new BasicAWSCredentials(key, secret));
-		s3client.setEndpoint(server);
+		s3Client = new AmazonS3Client(new BasicAWSCredentials(key, secret));
+		s3Client.setEndpoint(server);
 		logger.setLevel(Level.ERROR);
 	}
 
 	public S3Utils() {
-		s3client = new AmazonS3Client(new BasicAWSCredentials(key, secret));
-		s3client.setEndpoint(server);
+		s3Client = new AmazonS3Client(new BasicAWSCredentials(key, secret));
+		s3Client.setEndpoint(server);
 		logger.setLevel(Level.ERROR);
 	}
 
@@ -100,15 +101,15 @@ public class S3Utils extends Common implements S3UtilsInterface {
 			server = S3Utils.server;
 		}
 		if (!authorize) {
-			s3client = new AmazonS3Client();
+			s3Client = new AmazonS3Client();
 		} else {
-			s3client = new AmazonS3Client(new BasicAWSCredentials(key, secret));
+			s3Client = new AmazonS3Client(new BasicAWSCredentials(key, secret));
 		}
-		s3client.setEndpoint(server);
+		s3Client.setEndpoint(server);
 	}
 
 	public AmazonS3Client getClient() {
-		return s3client;
+		return s3Client;
 	}
 
 	public static String creteCorsHtml(String path, String corsJsUri,
@@ -136,7 +137,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		if (!isCorsConfigurationExists()) {
 			configuration = new BucketCrossOriginConfiguration();
 		} else {
-			configuration = s3client
+			configuration = s3Client
 					.getBucketCrossOriginConfiguration(bucketName);
 		}
 
@@ -149,7 +150,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 		configuration.setRules(Arrays.asList(new CORSRule[] { rule }));
 
-		s3client.setBucketCrossOriginConfiguration(bucketName, configuration);
+		s3Client.setBucketCrossOriginConfiguration(bucketName, configuration);
 
 	}
 
@@ -167,7 +168,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		if (!isCorsConfigurationExists()) {
 			configuration = new BucketCrossOriginConfiguration();
 		} else {
-			configuration = s3client
+			configuration = s3Client
 					.getBucketCrossOriginConfiguration(bucketName);
 		}
 
@@ -180,14 +181,14 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 		configuration.setRules(Arrays.asList(new CORSRule[] { rule }));
 
-		s3client.setBucketCrossOriginConfiguration(bucketName, configuration);
+		s3Client.setBucketCrossOriginConfiguration(bucketName, configuration);
 
 	}
 
 	public boolean isCorsConfigurationExists() {
 
 		try {
-			if (s3client.getBucketCrossOriginConfiguration(bucketName) == null) {
+			if (s3Client.getBucketCrossOriginConfiguration(bucketName) == null) {
 				return false;
 			}
 		} catch (AmazonClientException e) {
@@ -217,7 +218,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	public List<Bucket> getBucketList() {
 		List<Bucket> bucketList = new ArrayList<Bucket>();
 		try {
-			bucketList = s3client.listBuckets();
+			bucketList = s3Client.listBuckets();
 		} catch (AmazonS3Exception e) {
 			e.printStackTrace();
 		} catch (AmazonClientException e) {
@@ -233,15 +234,15 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	}
 
 	public String getBucketLocation() {
-		return s3client.getBucketLocation(bucketName);
+		return s3Client.getBucketLocation(bucketName);
 	}
 
 	public BucketVersioningConfiguration getBucketVersioningConfiguration() {
-		return s3client.getBucketVersioningConfiguration(bucketName);
+		return s3Client.getBucketVersioningConfiguration(bucketName);
 	}
 
 	public BucketLoggingConfiguration getBucketLoggingConfiguration() {
-		return s3client.getBucketLoggingConfiguration(bucketName);
+		return s3Client.getBucketLoggingConfiguration(bucketName);
 	}
 
 	public void setBucketAcl(Permission permission) {
@@ -249,25 +250,25 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 		SetBucketAclRequest setBucketAclRequest = new SetBucketAclRequest(
 				bucketName, acl);
-		s3client.setBucketAcl(setBucketAclRequest);
+		s3Client.setBucketAcl(setBucketAclRequest);
 	}
 
 	public void setBucketAcl(CannedAccessControlList cannedAcl) {
 		SetBucketAclRequest setBucketAclRequest = new SetBucketAclRequest(
 				bucketName, cannedAcl);
-		s3client.setBucketAcl(setBucketAclRequest);
+		s3Client.setBucketAcl(setBucketAclRequest);
 	}
 
 	public void setBucketAcl(AccessControlList acl) {
 		SetBucketAclRequest setBucketAclRequest = new SetBucketAclRequest(
 				bucketName, acl);
-		s3client.setBucketAcl(setBucketAclRequest);
+		s3Client.setBucketAcl(setBucketAclRequest);
 	}
 
 	public AccessControlList getBucketAcl() {
 		GetBucketAclRequest getBucketAclRequest = new GetBucketAclRequest(
 				bucketName);
-		return s3client.getBucketAcl(getBucketAclRequest);
+		return s3Client.getBucketAcl(getBucketAclRequest);
 	}
 
 	public Bucket getBucket(String bucketName) {
@@ -284,15 +285,15 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	public List<S3ObjectSummary> getObjectList() {
 
-		ObjectListing current = s3client.listObjects(bucketName);
+		ObjectListing current = s3Client.listObjects(bucketName);
 		List<S3ObjectSummary> keyList = current.getObjectSummaries();
-		ObjectListing next = s3client.listNextBatchOfObjects(current);
+		ObjectListing next = s3Client.listNextBatchOfObjects(current);
 		keyList.addAll(next.getObjectSummaries());
 
 		while (next.isTruncated()) {
-			current = s3client.listNextBatchOfObjects(next);
+			current = s3Client.listNextBatchOfObjects(next);
 			keyList.addAll(current.getObjectSummaries());
-			next = s3client.listNextBatchOfObjects(current);
+			next = s3Client.listNextBatchOfObjects(current);
 		}
 		keyList.addAll(next.getObjectSummaries());
 
@@ -301,17 +302,17 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	public void setObjectAcl(String objectName, Permission permission) {
 		AccessControlList acl = createAccessControlList(permission);
-		s3client.setObjectAcl(bucketName, objectName, acl);
+		s3Client.setObjectAcl(bucketName, objectName, acl);
 	}
 
 	public AccessControlList getObjectAcl(String objectName) {
-		return s3client.getObjectAcl(bucketName, objectName);
+		return s3Client.getObjectAcl(bucketName, objectName);
 	}
 
 	public void putTextFile(String objectName, String text, String bucketName) {
 
 		try {
-			s3client.putObject(new PutObjectRequest(bucketName, objectName,
+			s3Client.putObject(new PutObjectRequest(bucketName, objectName,
 					FileUtils.create(objectName, text))
 					.withCannedAcl(CannedAccessControlList.PublicRead));
 		} catch (AmazonServiceException ase) {
@@ -334,7 +335,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 			file = createSampleFile();
 			PutObjectRequest putObjectRequest = new PutObjectRequest(
 					bucketName, objectName, file);
-			s3client.putObject(putObjectRequest.withAccessControlList(acl));
+			s3Client.putObject(putObjectRequest.withAccessControlList(acl));
 		} catch (AmazonServiceException ase) {
 			printAmazonServiceException(ase);
 		} catch (AmazonClientException ace) {
@@ -357,7 +358,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		try {
 			PutObjectRequest putObjectRequest = new PutObjectRequest(
 					bucketName, objectName, file);
-			putObjectResult = s3client.putObject(putObjectRequest
+			putObjectResult = s3Client.putObject(putObjectRequest
 					.withCannedAcl(cannedAcl));
 		} catch (AmazonServiceException ase) {
 			printAmazonServiceException(ase);
@@ -379,7 +380,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 			PutObjectRequest putObjectRequest = new PutObjectRequest(
 					bucketName, objectName, is, om);
-			putObjectResult = s3client.putObject(putObjectRequest
+			putObjectResult = s3Client.putObject(putObjectRequest
 					.withCannedAcl(CannedAccessControlList.PublicRead)
 					.withInputStream(is));
 		} catch (FileNotFoundException e) {
@@ -402,7 +403,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		try {
 			CopyObjectRequest copyObjectRequest = new CopyObjectRequest(
 					bucketName, objectName, bucketName, copyObjectName);
-			copyObjectResult = s3client.copyObject(copyObjectRequest
+			copyObjectResult = s3Client.copyObject(copyObjectRequest
 					.withAccessControlList(acl));
 		} catch (AmazonServiceException ase) {
 			printAmazonServiceException(ase);
@@ -420,7 +421,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		try {
 			DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(
 					bucketName, objectName);
-			s3client.deleteObject(deleteObjectRequest);
+			s3Client.deleteObject(deleteObjectRequest);
 		} catch (AmazonServiceException ase) {
 			printAmazonServiceException(ase);
 		} catch (AmazonClientException ace) {
@@ -473,7 +474,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 					bucketName, objectName, initResponse.getUploadId(),
 					partETags);
 
-			completeMultipartUploadResult = s3client
+			completeMultipartUploadResult = s3Client
 					.completeMultipartUpload(compRequest);
 		} catch (Exception e) {
 			abortUploadPart(objectName, initResponse.getUploadId());
@@ -489,7 +490,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 		InitiateMultipartUploadRequest initRequest = new InitiateMultipartUploadRequest(
 				bucketName, objectName);
-		InitiateMultipartUploadResult initResponse = s3client
+		InitiateMultipartUploadResult initResponse = s3Client
 				.initiateMultipartUpload(initRequest
 						.withCannedACL(CannedAccessControlList.PublicRead));
 
@@ -499,7 +500,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	public UploadPartResult uploadPart(UploadPartRequest uploadRequest) {
 		try {
-			return s3client.uploadPart(uploadRequest);
+			return s3Client.uploadPart(uploadRequest);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -541,7 +542,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		CompleteMultipartUploadRequest compRequest = new CompleteMultipartUploadRequest(
 				bucketName, objectName, uploadId, partETags);
 
-		CompleteMultipartUploadResult completeMultipartUploadResult = s3client
+		CompleteMultipartUploadResult completeMultipartUploadResult = s3Client
 				.completeMultipartUpload(compRequest);
 
 		return completeMultipartUploadResult;
@@ -552,13 +553,13 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		AbortMultipartUploadRequest abortMultipartUploadRequest = new AbortMultipartUploadRequest(
 				bucketName, objectName, uploadID);
 
-		s3client.abortMultipartUpload(abortMultipartUploadRequest);
+		s3Client.abortMultipartUpload(abortMultipartUploadRequest);
 	}
 
 	public List<PartSummary> getPartsList(String objectName, String uploadId) {
 		ListPartsRequest listPartsRequest = new ListPartsRequest(bucketName,
 				objectName, uploadId);
-		PartListing partListing = s3client.listParts(listPartsRequest);
+		PartListing partListing = s3Client.listParts(listPartsRequest);
 		List<PartSummary> parts = partListing.getParts();
 
 		return parts;
@@ -616,8 +617,14 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		System.out.println("Downloading an object");
 		S3Object object = null;
 		try {
-			object = s3client.getObject(new GetObjectRequest(bucketName,
-					objectName));
+			ResponseHeaderOverrides responseHeaders = new ResponseHeaderOverrides();
+			responseHeaders.setCacheControl("No-cache");
+
+			GetObjectRequest getObjectRequest = new GetObjectRequest(
+					bucketName, objectName);
+			getObjectRequest.setResponseHeaders(responseHeaders);
+
+			object = s3Client.getObject(getObjectRequest);
 		} catch (AmazonS3Exception e) {
 			if (!e.getMessage().contains(NO_SUCH_KEY)) {
 				throw new Exception(e);
@@ -631,9 +638,20 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		return object;
 	}
 
+	public S3Object getRange(String objectName, long position, long partSize) {
+		GetObjectRequest rangeObjectRequest = new GetObjectRequest(bucketName,
+				objectName);
+
+		rangeObjectRequest.setRange(position, partSize);
+
+		S3Object objectPortion = s3Client.getObject(rangeObjectRequest);
+
+		return objectPortion;
+	}
+
 	public boolean isObjectExist(String objectName) throws Exception {
 		try {
-			s3client.getObject(new GetObjectRequest(bucketName, objectName));
+			s3Client.getObject(new GetObjectRequest(bucketName, objectName));
 		} catch (AmazonS3Exception e) {
 			if (e.getMessage().contains(NO_SUCH_KEY)) {
 				return false;
@@ -667,21 +685,21 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		String objectName = "my_object";
 
 		// Get name of the first bucket available
-		String bucketName = s3client.listBuckets().get(0).getName();
+		String bucketName = s3Client.listBuckets().get(0).getName();
 
 		try {
 			System.out.println("List of Buckets: ");
-			for (Bucket bucket : s3client.listBuckets()) {
+			for (Bucket bucket : s3Client.listBuckets()) {
 				System.out.println(" - " + bucket.getName());
 			}
 			System.out.println();
 
 			System.out.println("Uploading a new object to S3 from a file\n");
-			s3client.putObject(new PutObjectRequest(bucketName, objectName,
+			s3Client.putObject(new PutObjectRequest(bucketName, objectName,
 					createSampleFile()));
 
 			System.out.println("Downloading an object");
-			S3Object object = s3client.getObject(new GetObjectRequest(
+			S3Object object = s3Client.getObject(new GetObjectRequest(
 					bucketName, objectName));
 
 			System.out.println("Content-Type: "
@@ -690,7 +708,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 			System.out.println("Listing objects\n");
 
-			ObjectListing objectListing = s3client
+			ObjectListing objectListing = s3Client
 					.listObjects(new ListObjectsRequest()
 							.withBucketName(bucketName));
 
@@ -703,7 +721,7 @@ public class S3Utils extends Common implements S3UtilsInterface {
 			System.out.println();
 
 			System.out.println("Deleting an object\n");
-			s3client.deleteObject(bucketName, objectName);
+			s3Client.deleteObject(bucketName, objectName);
 
 		} catch (AmazonServiceException ase) {
 			System.out.println("Caught an AmazonServiceException.");

@@ -50,7 +50,7 @@ public class Api_08_MultipartUpload_Test extends TestInitialize {
 	 * @throws IOException
 	 */
 
-	@Test(groups = { "api" }, testName = "multipartUploadTest")
+	@Test(groups = { "api" })
 	public void multipartUploadTest() throws Exception {
 
 		// Get S3 objects
