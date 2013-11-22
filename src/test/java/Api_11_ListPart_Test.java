@@ -7,6 +7,7 @@ import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
 
 import org.testng.Assert;
+import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -19,7 +20,6 @@ public class Api_11_ListPart_Test extends TestInitialize {
 	S3Utils s3Utils, s3UtilsAws;
 	String fileName = "test_5mb.file";
 	String filePath = FileUtils.getRootPath() + "\\static\\" + fileName;
-	String filePathNew = TEST_OUTPUT_FOLDER + fileName;
 	InitiateMultipartUploadResult initResponse, initResponseAws;
 	String uploadId, uploadIdAws;
 	private static int partNumber = 1;
@@ -34,7 +34,6 @@ public class Api_11_ListPart_Test extends TestInitialize {
 	@BeforeTest(groups = { "api" })
 	public void init() {
 
-		FileUtils.createFolder(TEST_OUTPUT_FOLDER);
 		file = new File(filePath);
 
 		// initiate S3 and AWS
@@ -57,8 +56,18 @@ public class Api_11_ListPart_Test extends TestInitialize {
 
 	}
 
+	@AfterTest(groups = { "api" })
+	public void tear() {
+		// Abort upload
+		s3Utils.abortUploadPart(fileName, uploadId);
+		s3UtilsAws.abortUploadPart(fileName, uploadIdAws);
+
+		s3Utils.deleteObject(fileName);
+		s3UtilsAws.deleteObject(fileName);
+	}
+
 	/**
-	 * @desc Check ability to upload part of an object into a bucket
+	 * @desc Check ability to list parts
 	 * 
 	 * @throws Exception
 	 */

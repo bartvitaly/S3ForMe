@@ -34,6 +34,8 @@ import com.amazonaws.services.s3.model.AccessControlList;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.BucketCrossOriginConfiguration;
+import com.amazonaws.services.s3.model.BucketLoggingConfiguration;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
 import com.amazonaws.services.s3.model.CORSRule;
 import com.amazonaws.services.s3.model.CORSRule.AllowedMethods;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
@@ -107,25 +109,6 @@ public class S3Utils extends Common implements S3UtilsInterface {
 
 	public AmazonS3Client getClient() {
 		return s3client;
-	}
-
-	public void createUser(String userName) {
-		CreateUserRequest user = new CreateUserRequest(userName);
-		CreateAccessKeyRequest key = new CreateAccessKeyRequest();
-
-		BasicAWSCredentials cred = new BasicAWSCredentials("access", "secret");
-
-		key.withUserName(user.getUserName());
-		key.setRequestCredentials(cred);
-
-		user.setRequestCredentials(key.getRequestCredentials());
-		user.setPath("/");
-		AmazonIdentityManagementClient client = new AmazonIdentityManagementClient(
-				cred);
-		CreateUserResult result = client.createUser(user);
-
-		System.out.println(result);
-
 	}
 
 	public static String creteCorsHtml(String path, String corsJsUri,
@@ -247,6 +230,18 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	public void setBacket(String bucketName) {
 		bucket = getBucket(bucketName);
 		this.bucketName = bucketName;
+	}
+
+	public String getBucketLocation() {
+		return s3client.getBucketLocation(bucketName);
+	}
+
+	public BucketVersioningConfiguration getBucketVersioningConfiguration() {
+		return s3client.getBucketVersioningConfiguration(bucketName);
+	}
+
+	public BucketLoggingConfiguration getBucketLoggingConfiguration() {
+		return s3client.getBucketLoggingConfiguration(bucketName);
 	}
 
 	public void setBucketAcl(Permission permission) {
@@ -857,6 +852,25 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	void printAmazonClientException(AmazonClientException ace) {
 		System.out.println("Caught an AmazonClientException.");
 		System.out.println("Error Message: " + ace.getMessage());
+	}
+
+	public void createUser(String userName) {
+		CreateUserRequest user = new CreateUserRequest(userName);
+		CreateAccessKeyRequest key = new CreateAccessKeyRequest();
+
+		BasicAWSCredentials cred = new BasicAWSCredentials("access", "secret");
+
+		key.withUserName(user.getUserName());
+		key.setRequestCredentials(cred);
+
+		user.setRequestCredentials(key.getRequestCredentials());
+		user.setPath("/");
+		AmazonIdentityManagementClient client = new AmazonIdentityManagementClient(
+				cred);
+		CreateUserResult result = client.createUser(user);
+
+		System.out.println(result);
+
 	}
 
 }

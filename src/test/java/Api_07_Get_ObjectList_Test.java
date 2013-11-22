@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.List;
 
 import me.s3for.common.Common;
+import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
 
 import org.testng.Assert;
@@ -57,19 +58,50 @@ public class Api_07_Get_ObjectList_Test extends TestInitialize {
 	@Test(groups = { "api" })
 	public void bucketGetObjectsList_Test() throws Exception {
 
-		List<S3ObjectSummary> buckets = s3Utils.getObjectList();
-		List<S3ObjectSummary> bucketsAws = s3UtilsAws.getObjectList();
+		List<S3ObjectSummary> objects = s3Utils.getObjectList();
+		List<S3ObjectSummary> objectsAws = s3UtilsAws.getObjectList();
+
+		String object = "";
+		String objectAws = "";
+		for (int i = 0; i < objects.size(); i++) {
+			object = object + "\n " + objects.get(i).getKey();
+			System.out.println(objects.get(i).getKey());
+		}
+
+		for (int i = 0; i < objectsAws.size(); i++) {
+			objectAws = objectAws + "\n " + objectsAws.get(i).getKey();
+			System.out.println(objectsAws.get(i).getKey());
+		}
+
+		FileUtils.write(FileUtils.getRootPath() + "\\Api_07\\result.txt",
+				object + "\n Aws: \n" + objectAws);
 
 		s3Utils.put(fileName, file);
 		s3UtilsAws.put(fileName, file);
 
-		Common.waitSec(10);
+		Common.waitSec(1);
 
-		List<S3ObjectSummary> bucketsNew = s3Utils.getObjectList();
-		List<S3ObjectSummary> bucketsAwsNew = s3UtilsAws.getObjectList();
+		List<S3ObjectSummary> objectsNew = s3Utils.getObjectList();
+		List<S3ObjectSummary> objectsAwsNew = s3UtilsAws.getObjectList();
 
-		Assert.assertEquals(buckets.size() + 1, bucketsNew.size());
-		Assert.assertEquals(bucketsAws.size() + 1, bucketsAwsNew.size());
+		String objectNew = "";
+		String objectAwsNew = "";
+		for (int i = 0; i < objectsNew.size(); i++) {
+			objectNew = objectNew + "\n " + objectsNew.get(i).getKey();
+			System.out.println(objectsNew.get(i).getKey());
+		}
+
+		for (int i = 0; i < objectsAwsNew.size(); i++) {
+			objectAwsNew = objectAwsNew + "\n " + objectsAwsNew.get(i).getKey();
+			System.out.println(objectsNew.get(i).getKey());
+		}
+
+		FileUtils.createFolder(FileUtils.getRootPath() + "\\Api_07");
+		FileUtils.write(FileUtils.getRootPath() + "\\Api_07\\result2.txt",
+				objectNew + "\n Aws: \n" + objectAwsNew);
+
+		Assert.assertEquals(objects.size() + 1, objectsNew.size());
+		Assert.assertEquals(objectsAws.size() + 1, objectsAwsNew.size());
 
 	}
 }

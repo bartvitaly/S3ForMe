@@ -17,7 +17,6 @@ public class Api_10_AbortUploadPart_Test extends TestInitialize {
 	S3Utils s3Utils, s3UtilsAws;
 	String fileName = "test_5mb.file";
 	String filePath = FileUtils.getRootPath() + "\\static\\" + fileName;
-	String filePathNew = TEST_OUTPUT_FOLDER + fileName;
 	InitiateMultipartUploadResult initResponse, initResponseAws;
 	String uploadId, uploadIdAws;
 	private static int partNumber = 1;
@@ -31,8 +30,6 @@ public class Api_10_AbortUploadPart_Test extends TestInitialize {
 
 	@BeforeTest(groups = { "api" })
 	public void init() {
-
-		FileUtils.createFolder(TEST_OUTPUT_FOLDER);
 		file = new File(filePath);
 
 		// initiate S3 and AWS
