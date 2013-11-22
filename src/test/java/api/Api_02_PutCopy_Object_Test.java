@@ -9,8 +9,8 @@ import me.s3for.common.S3Utils;
 import me.s3for.common.StringUtils;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import test.java.TestInitialize;
@@ -32,7 +32,7 @@ public class Api_02_PutCopy_Object_Test extends TestInitialize {
 	 * @desc The code to be run before each test
 	 */
 
-	@BeforeTest(groups = { "api" })
+	@BeforeMethod(groups = { "api" })
 	public void before() {
 		// initiate S3 and AWS
 		s3Utils = new S3Utils(keyS3, secretS3, serverS3);
@@ -49,7 +49,7 @@ public class Api_02_PutCopy_Object_Test extends TestInitialize {
 
 	}
 
-	@AfterTest(groups = { "api" })
+	@AfterMethod(groups = { "api" })
 	public void tear() {
 		s3Utils.deleteObject(fileName);
 		s3UtilsAws.deleteObject(fileName);

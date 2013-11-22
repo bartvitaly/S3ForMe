@@ -6,7 +6,7 @@ import java.io.IOException;
 import me.s3for.common.S3Utils;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import test.java.TestInitialize;
@@ -21,7 +21,7 @@ public class Api_03_Delete_Object_Test extends TestInitialize {
 	 * @desc The code to be run before each test
 	 */
 
-	@BeforeGroups(groups = { "api" })
+	@BeforeMethod(groups = { "api" })
 	public void before() {
 		// initiate S3 and AWS
 		s3Utils = new S3Utils(keyS3, secretS3, serverS3);

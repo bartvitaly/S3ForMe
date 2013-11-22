@@ -6,8 +6,8 @@ import java.io.IOException;
 import me.s3for.common.S3Utils;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import test.java.TestInitialize;
@@ -32,7 +32,7 @@ public class Api_05_Get_BucketAcl_Test extends TestInitialize {
 	 * @desc The code to be run before each test
 	 */
 
-	@BeforeTest(groups = { "api" })
+	@BeforeMethod(groups = { "api" })
 	public void init() {
 		// initiate S3 and AWS
 		s3Utils = new S3Utils(keyS3, secretS3, serverS3);
@@ -49,7 +49,7 @@ public class Api_05_Get_BucketAcl_Test extends TestInitialize {
 
 	}
 
-	@AfterTest(groups = { "api" })
+	@AfterMethod(groups = { "api" })
 	public void tear() {
 		s3Utils.setBucketAcl(aclS3Default);
 		s3UtilsAws.setBucketAcl(aclS3AwsDefault);

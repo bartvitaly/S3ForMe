@@ -60,7 +60,6 @@ import com.amazonaws.services.s3.model.PartSummary;
 import com.amazonaws.services.s3.model.Permission;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectResult;
-import com.amazonaws.services.s3.model.ResponseHeaderOverrides;
 import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.model.SetBucketAclRequest;
@@ -617,12 +616,8 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		System.out.println("Downloading an object");
 		S3Object object = null;
 		try {
-			ResponseHeaderOverrides responseHeaders = new ResponseHeaderOverrides();
-			responseHeaders.setCacheControl("No-cache");
-
 			GetObjectRequest getObjectRequest = new GetObjectRequest(
 					bucketName, objectName);
-			getObjectRequest.setResponseHeaders(responseHeaders);
 
 			object = s3Client.getObject(getObjectRequest);
 		} catch (AmazonS3Exception e) {

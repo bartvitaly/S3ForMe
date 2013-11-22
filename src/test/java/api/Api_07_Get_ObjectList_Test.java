@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.List;
 
 import me.s3for.common.Common;
-import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
 
 import org.testng.Assert;
@@ -80,9 +79,6 @@ public class Api_07_Get_ObjectList_Test extends TestInitialize {
 			System.out.println(objectsAws.get(i).getKey());
 		}
 
-		FileUtils.write(FileUtils.getRootPath() + "\\Api_07\\result.txt",
-				object + "\n Aws: \n" + objectAws);
-
 		s3Utils.put(fileName, file);
 		s3UtilsAws.put(fileName, file);
 
@@ -105,10 +101,6 @@ public class Api_07_Get_ObjectList_Test extends TestInitialize {
 			objectAwsNew = objectAwsNew + "\n " + objectsAwsNew.get(i).getKey();
 			System.out.println(objectsAwsNew.get(i).getKey());
 		}
-
-		FileUtils.createFolder(FileUtils.getRootPath() + "\\Api_07");
-		FileUtils.write(FileUtils.getRootPath() + "\\Api_07\\result2.txt",
-				objectNew + "\n Aws: \n" + objectAwsNew);
 
 		Assert.assertEquals(objects.size() + 1, objectsNew.size());
 		Assert.assertEquals(objectsAws.size() + 1, objectsAwsNew.size());
