@@ -1,4 +1,4 @@
-package test.java;
+package test.java.api;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,8 +9,10 @@ import me.s3for.common.S3Utils;
 import me.s3for.common.StringUtils;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import test.java.TestInitialize;
 
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.S3Object;
@@ -33,7 +35,7 @@ public class Api_09_UploadPart_Test extends TestInitialize {
 	 * @desc The code to be run before each test
 	 */
 
-	@BeforeGroups(groups = { "api" })
+	@BeforeMethod(groups = { "api" })
 	public void before() {
 		FileUtils.createFolder(TEST_OUTPUT_FOLDER);
 		file = new File(filePath);

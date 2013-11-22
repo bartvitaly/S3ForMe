@@ -1,4 +1,4 @@
-package test.java;
+package test.java.cors;
 
 import java.io.IOException;
 
@@ -9,9 +9,11 @@ import me.s3for.common.WebDriverCommon;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import test.java.TestInitializeWebDriver;
 
 import com.amazonaws.services.s3.model.CORSRule.AllowedMethods;
 
@@ -27,14 +29,14 @@ public class Cors_01_Negative_Test extends TestInitializeWebDriver {
 
 	S3Utils s3Utils;
 
-	@BeforeTest(groups = { "cors" })
+	@BeforeMethod(groups = { "cors" })
 	public void init() {
 		s3Utils = new S3Utils(keyS3, secretS3, serverS3);
 		s3Utils.setBacket(bucketName);
 		s3Utils.getClient().deleteBucketCrossOriginConfiguration(bucketName);
 	}
 
-	@AfterTest(groups = { "cors" })
+	@AfterMethod(groups = { "cors" })
 	public void tear() {
 		WebDriverCommon.takeScreenshot(driver);
 		driver.close();

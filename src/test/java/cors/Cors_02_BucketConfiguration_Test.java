@@ -1,4 +1,4 @@
-package test.java;
+package test.java.cors;
 
 import java.io.IOException;
 
@@ -8,6 +8,8 @@ import me.s3for.common.S3Utils;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import test.java.TestInitialize;
 
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.BucketCrossOriginConfiguration;

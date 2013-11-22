@@ -1,4 +1,4 @@
-package test.java;
+package test.java.api;
 
 import java.io.File;
 import java.util.List;
@@ -11,11 +11,13 @@ import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
+import test.java.TestInitialize;
+
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
 import com.amazonaws.services.s3.model.PartSummary;
 import com.amazonaws.services.s3.model.UploadPartRequest;
 
-public class Api_11_ListPart_Test extends TestInitialize {
+public class Api_13_ListPart_Test extends TestInitialize {
 
 	S3Utils s3Utils, s3UtilsAws;
 	String fileName = "test_5mb.file";

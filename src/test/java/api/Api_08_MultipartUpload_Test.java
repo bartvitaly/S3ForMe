@@ -1,4 +1,4 @@
-package test.java;
+package test.java.api;
 
 import java.io.IOException;
 import java.util.Map;
@@ -8,8 +8,10 @@ import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
 
 import org.testng.Assert;
-import org.testng.annotations.BeforeGroups;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import test.java.TestInitialize;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.S3Object;
@@ -25,7 +27,7 @@ public class Api_08_MultipartUpload_Test extends TestInitialize {
 	 * @desc The code to be run before each test
 	 */
 
-	@BeforeGroups(groups = { "api" })
+	@BeforeMethod(groups = { "api" })
 	public void before() {
 
 		// initiate S3 and AWS
@@ -48,7 +50,7 @@ public class Api_08_MultipartUpload_Test extends TestInitialize {
 	 * @throws IOException
 	 */
 
-	@Test(groups = { "api" })
+	@Test(groups = { "api" }, testName = "multipartUploadTest")
 	public void multipartUploadTest() throws Exception {
 
 		// Get S3 objects

@@ -1,4 +1,4 @@
-package test.java;
+package test.java.api;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,9 +9,11 @@ import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
 
 import org.testng.Assert;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import test.java.TestInitialize;
 
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 
@@ -26,7 +28,7 @@ public class Api_07_Get_ObjectList_Test extends TestInitialize {
 	 * @desc The code to be run before each test
 	 */
 
-	@BeforeTest(groups = { "api" })
+	@BeforeMethod(groups = { "api" })
 	public void init() {
 		// initiate S3 and AWS
 		s3Utils = new S3Utils(keyS3, secretS3, serverS3);
@@ -39,11 +41,14 @@ public class Api_07_Get_ObjectList_Test extends TestInitialize {
 		// put a file in a basket
 		file = S3Utils.createSampleFile();
 
-		s3Utils.deleteObject(fileName);
-		s3UtilsAws.deleteObject(fileName);
+		Assert.assertFalse(s3Utils.deleteObject(fileName),
+				"An object was not deleted");
+		Assert.assertFalse(s3UtilsAws.deleteObject(fileName),
+				"An object was not deleted");
+
 	}
 
-	@AfterTest(groups = { "api" })
+	@AfterMethod(groups = { "api" })
 	public void tear() {
 		s3Utils.deleteObject(fileName);
 		s3UtilsAws.deleteObject(fileName);
@@ -63,11 +68,13 @@ public class Api_07_Get_ObjectList_Test extends TestInitialize {
 
 		String object = "";
 		String objectAws = "";
+		System.out.println("\nS3 bucket:\n");
 		for (int i = 0; i < objects.size(); i++) {
 			object = object + "\n " + objects.get(i).getKey();
 			System.out.println(objects.get(i).getKey());
 		}
 
+		System.out.println("\nAws bucket:\n");
 		for (int i = 0; i < objectsAws.size(); i++) {
 			objectAws = objectAws + "\n " + objectsAws.get(i).getKey();
 			System.out.println(objectsAws.get(i).getKey());
@@ -81,19 +88,22 @@ public class Api_07_Get_ObjectList_Test extends TestInitialize {
 
 		Common.waitSec(1);
 
+		System.out.println("\nAn object was put");
 		List<S3ObjectSummary> objectsNew = s3Utils.getObjectList();
 		List<S3ObjectSummary> objectsAwsNew = s3UtilsAws.getObjectList();
 
 		String objectNew = "";
 		String objectAwsNew = "";
+		System.out.println("\nS3 bucket:\n");
 		for (int i = 0; i < objectsNew.size(); i++) {
 			objectNew = objectNew + "\n " + objectsNew.get(i).getKey();
 			System.out.println(objectsNew.get(i).getKey());
 		}
 
+		System.out.println("\nAws bucket:\n");
 		for (int i = 0; i < objectsAwsNew.size(); i++) {
 			objectAwsNew = objectAwsNew + "\n " + objectsAwsNew.get(i).getKey();
-			System.out.println(objectsNew.get(i).getKey());
+			System.out.println(objectsAwsNew.get(i).getKey());
 		}
 
 		FileUtils.createFolder(FileUtils.getRootPath() + "\\Api_07");

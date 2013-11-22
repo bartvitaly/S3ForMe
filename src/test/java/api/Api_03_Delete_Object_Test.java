@@ -1,4 +1,4 @@
-package test.java;
+package test.java.api;
 
 import java.io.File;
 import java.io.IOException;
@@ -8,6 +8,8 @@ import me.s3for.common.S3Utils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeGroups;
 import org.testng.annotations.Test;
+
+import test.java.TestInitialize;
 
 public class Api_03_Delete_Object_Test extends TestInitialize {
 

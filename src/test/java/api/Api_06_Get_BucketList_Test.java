@@ -1,4 +1,4 @@
-package test.java;
+package test.java.api;
 
 import java.io.IOException;
 import java.util.List;
@@ -7,6 +7,8 @@ import me.s3for.common.S3Utils;
 
 import org.testng.Assert;
 import org.testng.annotations.Test;
+
+import test.java.TestInitialize;
 
 import com.amazonaws.services.s3.model.Bucket;
 

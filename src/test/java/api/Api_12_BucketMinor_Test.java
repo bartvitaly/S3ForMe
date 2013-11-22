@@ -1,10 +1,12 @@
-package test.java;
+package test.java.api;
 
 import me.s3for.common.S3Utils;
 
 import org.junit.Assert;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import test.java.TestInitialize;
 
 public class Api_12_BucketMinor_Test extends TestInitialize {
 

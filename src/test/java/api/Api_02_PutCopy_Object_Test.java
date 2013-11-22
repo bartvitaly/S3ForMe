@@ -1,4 +1,4 @@
-package test.java;
+package test.java.api;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,6 +12,8 @@ import org.testng.Assert;
 import org.testng.annotations.AfterTest;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
+
+import test.java.TestInitialize;
 
 import com.amazonaws.services.s3.model.CopyObjectResult;
 import com.amazonaws.services.s3.model.ObjectMetadata;

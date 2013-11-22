@@ -413,7 +413,9 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		return copyObjectResult;
 	}
 
-	public void deleteObject(String objectName) {
+	public boolean deleteObject(String objectName) {
+
+		boolean isObjectExist = true;
 
 		try {
 			DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(
@@ -424,6 +426,16 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		} catch (AmazonClientException ace) {
 			printAmazonClientException(ace);
 		}
+
+		Common.waitSec(1);
+
+		try {
+			isObjectExist = isObjectExist(objectName);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return isObjectExist;
 	}
 
 	public Object[] multipartUpload(String objectName, String filePath,
