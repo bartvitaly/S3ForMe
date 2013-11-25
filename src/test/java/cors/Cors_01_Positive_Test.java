@@ -5,7 +5,6 @@ import java.io.IOException;
 import me.s3for.common.Common;
 import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
-import me.s3for.common.WebDriverCommon;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -37,7 +36,7 @@ public class Cors_01_Positive_Test extends TestInitializeWebDriver {
 
 	@AfterMethod(groups = { "cors" })
 	public void tear() {
-		WebDriverCommon.takeScreenshot(driver);
+		// WebDriverCommon.takeScreenshot(driver);
 		driver.close();
 		driver.quit();
 	}

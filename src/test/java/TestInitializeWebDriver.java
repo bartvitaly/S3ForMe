@@ -14,15 +14,16 @@ public class TestInitializeWebDriver extends TestInitialize {
 	@BeforeMethod(groups = { "cors" })
 	public void createDriver() {
 
-		System.setProperty("webdriver.chrome.driver",
-				PropertiesUtils.getProperty("webdriver.chrome.driver"));
+//		System.setProperty("webdriver.chrome.driver",
+//				PropertiesUtils.getProperty("webdriver.chrome.driver"));
 
-		if (browser.equals("chrome")) {
-			driver = new ChromeDriver();
-		} else if (browser.equals("firefox")) {
+		// if (browser.equals("chrome")) {
+		// driver = new ChromeDriver();
+		// } else 
+			if (browser.equals("firefox")) {
 			driver = new FirefoxDriver();
 		} else {
-			driver = new HtmlUnitDriver();
+			driver = new HtmlUnitDriver(true);
 		}
 
 		driver.manage().timeouts().implicitlyWait(30, TimeUnit.SECONDS);

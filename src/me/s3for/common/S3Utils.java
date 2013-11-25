@@ -1,6 +1,8 @@
 package me.s3for.common;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -357,8 +359,11 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		try {
 			PutObjectRequest putObjectRequest = new PutObjectRequest(
 					bucketName, objectName, file);
+			System.out.println("Put an object: " + file.getName()
+					+ " of length: " + file.length());
 			putObjectResult = s3Client.putObject(putObjectRequest
 					.withCannedAcl(cannedAcl));
+			System.out.println("An object: " + file.getName() + " was put.");
 		} catch (AmazonServiceException ase) {
 			printAmazonServiceException(ase);
 		} catch (AmazonClientException ace) {
@@ -372,18 +377,52 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		PutObjectResult putObjectResult = null;
 
 		InputStream is;
+		BufferedInputStream bis;
 		try {
 			is = new FileInputStream(file);
+			bis = new BufferedInputStream(is, 8192);
 			ObjectMetadata om = new ObjectMetadata();
 			om.setContentLength(file.length());
 
 			PutObjectRequest putObjectRequest = new PutObjectRequest(
-					bucketName, objectName, is, om);
+					bucketName, objectName, bis, om);
+			System.out.println("Put an object: " + file.getName()
+					+ " of length: " + file.length());
 			putObjectResult = s3Client.putObject(putObjectRequest
 					.withCannedAcl(CannedAccessControlList.PublicRead)
-					.withInputStream(is));
+					.withInputStream(bis));
+			System.out.println("An object: " + file.getName() + " was put.");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
+		} catch (AmazonServiceException ase) {
+			printAmazonServiceException(ase);
+		} catch (AmazonClientException ace) {
+			printAmazonClientException(ace);
+		}
+
+		return putObjectResult;
+	}
+
+	public PutObjectResult putAsInputStream(String objectName, String fileText) {
+		PutObjectResult putObjectResult = null;
+
+		InputStream is;
+		BufferedInputStream bis;
+		try {
+
+			is = new ByteArrayInputStream(fileText.getBytes());
+			bis = new BufferedInputStream(is, 1024);
+			ObjectMetadata om = new ObjectMetadata();
+			om.setContentLength(fileText.length());
+
+			PutObjectRequest putObjectRequest = new PutObjectRequest(
+					bucketName, objectName, bis, om);
+			System.out.println("Put an object: " + objectName + " of length: "
+					+ fileText.length());
+			putObjectResult = s3Client.putObject(putObjectRequest
+					.withCannedAcl(CannedAccessControlList.PublicRead)
+					.withInputStream(bis));
+			System.out.println("An object: " + objectName + " was put.");
 		} catch (AmazonServiceException ase) {
 			printAmazonServiceException(ase);
 		} catch (AmazonClientException ace) {
@@ -420,7 +459,9 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		try {
 			DeleteObjectRequest deleteObjectRequest = new DeleteObjectRequest(
 					bucketName, objectName);
+			System.out.println("Deleting an object: " + objectName + "...");
 			s3Client.deleteObject(deleteObjectRequest);
+			System.out.println("An object: " + objectName + " was deleted.");
 		} catch (AmazonServiceException ase) {
 			printAmazonServiceException(ase);
 		} catch (AmazonClientException ace) {
@@ -510,11 +551,20 @@ public class S3Utils extends Common implements S3UtilsInterface {
 			long filePosition, File file, long partSize, int partNumber,
 			String md5Digest) {
 
-		UploadPartRequest uploadRequest = new UploadPartRequest()
-				.withBucketName(bucketName).withKey(objectName)
-				.withUploadId(uploadId).withPartNumber(partNumber)
-				.withFileOffset(filePosition).withFile(file)
-				.withPartSize(partSize).withMD5Digest(md5Digest);
+		InputStream is;
+		BufferedInputStream bis;
+		UploadPartRequest uploadRequest = null;
+		try {
+			is = new FileInputStream(file);
+			bis = new BufferedInputStream(is, 1024);
+			uploadRequest = new UploadPartRequest().withBucketName(bucketName)
+					.withKey(objectName).withUploadId(uploadId)
+					.withPartNumber(partNumber).withFileOffset(filePosition)
+					.withPartSize(partSize).withMD5Digest(md5Digest)
+					.withInputStream(bis);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 
 		return uploadRequest;
 
@@ -523,11 +573,19 @@ public class S3Utils extends Common implements S3UtilsInterface {
 	public UploadPartRequest uploadRequest(String objectName, String uploadId,
 			long filePosition, File file, long partSize, int partNumber) {
 
-		UploadPartRequest uploadRequest = new UploadPartRequest()
-				.withBucketName(bucketName).withKey(objectName)
-				.withUploadId(uploadId).withPartNumber(partNumber)
-				.withPartSize(partSize).withFileOffset(filePosition)
-				.withFile(file);
+		InputStream is;
+		BufferedInputStream bis;
+		UploadPartRequest uploadRequest = null;
+		try {
+			is = new FileInputStream(file);
+			bis = new BufferedInputStream(is, 1024);
+			uploadRequest = new UploadPartRequest().withBucketName(bucketName)
+					.withKey(objectName).withUploadId(uploadId)
+					.withPartNumber(partNumber).withFileOffset(filePosition)
+					.withPartSize(partSize).withInputStream(bis);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
 
 		return uploadRequest;
 
@@ -612,6 +670,20 @@ public class S3Utils extends Common implements S3UtilsInterface {
 		return map.size() == 0;
 	}
 
+	public static boolean compareObjectsMetadata(
+			ObjectMetadata s3ObjectMetadata,
+			ObjectMetadata s3ObjectMetadataAws, String[] avoidKeys) {
+
+		Map<String, Object> map = Common.compareMaps(
+				s3ObjectMetadata.getRawMetadata(),
+				s3ObjectMetadataAws.getRawMetadata(), avoidKeys);
+
+		System.out.println("Metadata: s3Object vs s3Object_2");
+		Common.printMap(map);
+
+		return map.size() == 0;
+	}
+
 	public S3Object get(String objectName) throws Exception {
 		System.out.println("Downloading an object");
 		S3Object object = null;
@@ -620,6 +692,32 @@ public class S3Utils extends Common implements S3UtilsInterface {
 					bucketName, objectName);
 
 			object = s3Client.getObject(getObjectRequest);
+		} catch (AmazonS3Exception e) {
+			if (!e.getMessage().contains(NO_SUCH_KEY)) {
+				throw new Exception(e);
+			}
+		} catch (AmazonServiceException ase) {
+			printAmazonServiceException(ase);
+		} catch (AmazonClientException ace) {
+			printAmazonClientException(ace);
+		}
+
+		return object;
+	}
+
+	public ObjectMetadata getMetadata(String objectName, String fileNameNew)
+			throws Exception {
+		System.out.println("Downloading an object");
+		ObjectMetadata object = null;
+		try {
+			GetObjectRequest getObjectRequest = new GetObjectRequest(
+					bucketName, objectName);
+
+			System.out.println("Getting an object: " + objectName);
+			object = s3Client
+					.getObject(getObjectRequest, new File(fileNameNew));
+			System.out
+					.println("Getting an object: " + objectName + " is ended");
 		} catch (AmazonS3Exception e) {
 			if (!e.getMessage().contains(NO_SUCH_KEY)) {
 				throw new Exception(e);

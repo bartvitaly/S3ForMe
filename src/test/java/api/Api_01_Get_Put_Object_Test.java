@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.util.Map;
 
 import me.s3for.common.Common;
+import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
-import me.s3for.common.StringUtils;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
@@ -17,15 +17,20 @@ import test.java.TestInitialize;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectResult;
-import com.amazonaws.services.s3.model.S3Object;
 
 public class Api_01_Get_Put_Object_Test extends TestInitialize {
 
 	S3Utils s3Utils, s3UtilsAws;
-	String fileName = "file.txt";
-	// String fileName = "test_5mb.file";
-	// String filePath = FileUtils.getRootPath() + "\\static\\" + fileName;
+	// String fileName = "file.txt";
+	String fileName = "test_5mb.file";
+	String fileNameNew = "test_5mb_new.file";
+	String fileNameNewAws = "test_5mb_aws.file";
+	String filePathNew = TEST_OUTPUT_FOLDER + fileNameNew;
+	String filePathNewAws = TEST_OUTPUT_FOLDER + fileNameNewAws;
 
+	String filePath = FileUtils.getRootPath() + "\\static\\" + fileName;
+
+	String fileText, fileTextAws;
 	File file, fileAws;
 
 	/**
@@ -34,6 +39,8 @@ public class Api_01_Get_Put_Object_Test extends TestInitialize {
 
 	@BeforeMethod(groups = { "api" })
 	public void init() {
+		FileUtils.createFolder(TEST_OUTPUT_FOLDER);
+
 		// initiate S3 and AWS
 		s3Utils = new S3Utils(keyS3, secretS3, serverS3);
 		s3UtilsAws = new S3Utils();
@@ -43,12 +50,13 @@ public class Api_01_Get_Put_Object_Test extends TestInitialize {
 		s3UtilsAws.setBacket(bucketNameAws);
 
 		// put a file in a basket
-		file = S3Utils.createSampleFile();
+		// file = S3Utils.createSampleFile();
 		// file = new File(filePath);
+		fileText = FileUtils.read(filePath);
 		PutObjectResult putObjectResult = s3Utils.putAsInputStream(fileName,
-				file);
+				fileText);
 		PutObjectResult putObjectResultAws = s3UtilsAws.putAsInputStream(
-				fileName, file);
+				fileName, fileText);
 
 		String md5 = putObjectResult.getContentMd5();
 		String md5Aws = putObjectResultAws.getContentMd5();
@@ -72,22 +80,19 @@ public class Api_01_Get_Put_Object_Test extends TestInitialize {
 	@Test(groups = { "api" }, testName = "bucketGetPutTest")
 	public void bucketGetPutTest() throws Exception {
 
-		// Get S3 objects
-		S3Object s3Object = s3Utils.get(fileName);
-		S3Object s3ObjectAws = s3UtilsAws.get(fileName);
+		ObjectMetadata s3ObjectMetadata = s3Utils.getMetadata(fileName,
+				filePathNew);
+		ObjectMetadata s3ObjectMetadataAws = s3UtilsAws.getMetadata(fileName,
+				filePathNewAws);
 
-		ObjectMetadata s3ObjectMetadata = s3Object.getObjectMetadata();
-		ObjectMetadata s3ObjectMetadataAws = s3ObjectAws.getObjectMetadata();
-
-		Assert.assertEquals(file.length(), s3ObjectMetadata.getContentLength());
-		Assert.assertEquals(file.length(),
+		Assert.assertEquals(fileText.length(),
+				s3ObjectMetadata.getContentLength());
+		Assert.assertEquals(fileText.length(),
 				s3ObjectMetadataAws.getContentLength());
 
 		// Get file content
-		String content = StringUtils.inputStreamToString(s3Object
-				.getObjectContent());
-		String contentAws = StringUtils.inputStreamToString(s3ObjectAws
-				.getObjectContent());
+		String content = FileUtils.read(filePathNew);
+		String contentAws = FileUtils.read(filePathNewAws);
 
 		Assert.assertEquals(content, contentAws);
 

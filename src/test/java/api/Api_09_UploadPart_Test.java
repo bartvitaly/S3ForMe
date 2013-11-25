@@ -6,7 +6,6 @@ import java.io.IOException;
 import me.s3for.common.Common;
 import me.s3for.common.FileUtils;
 import me.s3for.common.S3Utils;
-import me.s3for.common.StringUtils;
 
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
@@ -15,7 +14,7 @@ import org.testng.annotations.Test;
 import test.java.TestInitialize;
 
 import com.amazonaws.services.s3.model.InitiateMultipartUploadResult;
-import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.UploadPartRequest;
 import com.amazonaws.services.s3.model.UploadPartResult;
 
@@ -24,12 +23,16 @@ public class Api_09_UploadPart_Test extends TestInitialize {
 	S3Utils s3Utils, s3UtilsAws;
 	String fileName = "test_5mb.file";
 	String filePath = FileUtils.getRootPath() + "\\static\\" + fileName;
-	String filePathNew = TEST_OUTPUT_FOLDER + fileName;
 	InitiateMultipartUploadResult initResponse, initResponseAws;
 	private static int partNumber = 1;
 	private static long partSize = 1024 * 1024 * 5;
 	private static long position = 0;
 	File file;
+
+	String fileNameNew = "test_5mb_new.file";
+	String fileNameNewAws = "test_5mb_aws.file";
+	String filePathNew = TEST_OUTPUT_FOLDER + fileNameNew;
+	String filePathNewAws = TEST_OUTPUT_FOLDER + fileNameNewAws;
 
 	/**
 	 * @desc The code to be run before each test
@@ -93,19 +96,21 @@ public class Api_09_UploadPart_Test extends TestInitialize {
 		Common.waitSec(10);
 
 		// Get objects
-		S3Object s3Object = s3Utils.get(fileName);
-		S3Object s3ObjectAws = s3UtilsAws.get(fileName);
+		ObjectMetadata s3ObjectMetadata = s3Utils.getMetadata(fileName,
+				filePathNew);
+		ObjectMetadata s3ObjectMetadataAws = s3UtilsAws.getMetadata(fileName,
+				filePathNewAws);
 
-		// Get file content
-		String content = StringUtils.inputStreamToString(s3Object
-				.getObjectContent());
-		String contentAws = StringUtils.inputStreamToString(s3ObjectAws
-				.getObjectContent());
+		Assert.assertEquals(FileUtils.getLength(filePathNew),
+				s3ObjectMetadata.getContentLength());
+		Assert.assertEquals(FileUtils.getLength(filePathNewAws),
+				s3ObjectMetadataAws.getContentLength());
 
-		Assert.assertEquals(content, contentAws);
+		Assert.assertEquals(FileUtils.read(filePathNew),
+				FileUtils.read(filePathNewAws));
 
-		Assert.assertTrue(S3Utils.compareObjectsMetadata(s3Object, s3ObjectAws,
-				avoidKeysMultipart));
+		Assert.assertTrue(S3Utils.compareObjectsMetadata(s3ObjectMetadata,
+				s3ObjectMetadataAws, avoidKeysMultipart));
 
 	}
 }

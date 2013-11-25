@@ -14,7 +14,6 @@ import org.testng.annotations.Test;
 import test.java.TestInitialize;
 
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.S3Object;
 
 public class Api_08_MultipartUpload_Test extends TestInitialize {
 
@@ -23,12 +22,18 @@ public class Api_08_MultipartUpload_Test extends TestInitialize {
 	String filePath = FileUtils.getRootPath() + "\\static\\" + fileName;
 	int partSizeMb = 5;
 
+	String fileNameNew = "test_5mb_new.file";
+	String fileNameNewAws = "test_5mb_aws.file";
+	String filePathNew = TEST_OUTPUT_FOLDER + fileNameNew;
+	String filePathNewAws = TEST_OUTPUT_FOLDER + fileNameNewAws;
+
 	/**
 	 * @desc The code to be run before each test
 	 */
 
 	@BeforeMethod(groups = { "api" })
 	public void before() {
+		FileUtils.createFolder(TEST_OUTPUT_FOLDER);
 
 		// initiate S3 and AWS
 		s3Utils = new S3Utils(keyS3, secretS3, serverS3);
@@ -53,12 +58,10 @@ public class Api_08_MultipartUpload_Test extends TestInitialize {
 	@Test(groups = { "api" })
 	public void multipartUploadTest() throws Exception {
 
-		// Get S3 objects
-		S3Object s3Object = s3Utils.get(fileName);
-		S3Object s3ObjectAws = s3UtilsAws.get(fileName);
-
-		ObjectMetadata s3ObjectMetadata = s3Object.getObjectMetadata();
-		ObjectMetadata s3ObjectMetadataAws = s3ObjectAws.getObjectMetadata();
+		ObjectMetadata s3ObjectMetadata = s3Utils.getMetadata(fileName,
+				filePathNew);
+		ObjectMetadata s3ObjectMetadataAws = s3UtilsAws.getMetadata(fileName,
+				filePathNewAws);
 
 		Assert.assertEquals(FileUtils.getLength(filePath),
 				s3ObjectMetadata.getContentLength());
